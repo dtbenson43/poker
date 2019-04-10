@@ -1,0 +1,19 @@
+package com.poker
+ 
+import com.poker.PokerController.Game;
+ 
+rule "Hello World"
+    when
+        m : Game( turn == Game.AGENT, myTurn : turn )
+    then
+        System.out.println( myTurn );
+        m.setTurn( Game.PLAYER );
+        update( m );
+end
+
+rule "GoodBye"
+    when
+        Game( turn == Game.PLAYER, myTurn : turn )
+    then
+        System.out.println( myTurn );
+end
