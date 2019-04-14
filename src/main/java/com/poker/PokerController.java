@@ -27,7 +27,7 @@ public class PokerController {
             StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
             KnowledgeRuntimeLogger logger = KnowledgeRuntimeLoggerFactory.newFileLogger(ksession, "test");
             // go !
-            Game message = new Game();
+            Game message = new Game(kbase, ksession, logger);
             ksession.insert(message);
             ksession.fireAllRules();
             logger.close();
@@ -55,6 +55,10 @@ public class PokerController {
     	public static int PLAYER = 1;
     	public static int AGENT = 0;
     	
+    	KnowledgeBase kbase;
+        StatefulKnowledgeSession ksession;
+        KnowledgeRuntimeLogger logger;
+    	
     	private ArrayList<Card> AgentHand;
     	private ArrayList<Card> PlayerHand;
     	private ArrayList<Card> Board;
@@ -64,11 +68,16 @@ public class PokerController {
     	private int smallBlind = 25;
     	private int bigBlind = 50;
     	private int pot = 0;
+    	private String[] suits = {"Hearts", "Diamonds", "Spades", "Clubs"}; 
+    	private String[] nameOfCard = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace"};
     	private Scanner scnr = new Scanner(System.in);
     	
     	private int turn;
     	
-    	public Game() {
+    	public Game(KnowledgeBase kbase, StatefulKnowledgeSession ksession, KnowledgeRuntimeLogger logger) {
+    		this.kbase = kbase;
+    		this.ksession = ksession;
+    		this.logger = logger;
     		
     		this.turn = 0;
     		if(Math.random() < 0.5) {
@@ -85,6 +94,29 @@ public class PokerController {
         	
     		this.buildDeck();
     		this.dealCards();
+    		
+    		gameLoop();
+    	}
+    	
+    	private void gameLoop() {
+    		bettingLoop();
+    		Board.add(Deck.remove((int)(Math.random() * 1000000) % Deck.size()));
+    		Board.add(Deck.remove((int)(Math.random() * 1000000) % Deck.size()));
+    		Board.add(Deck.remove((int)(Math.random() * 1000000) % Deck.size()));
+    		for(Card c: Board) {
+    			System.out.println(nameOfCard[c.getRank()] + " of " + suits[c.getSuit()]);
+    		}
+    		bettingLoop();
+    		Board.add(Deck.remove((int)(Math.random() * 1000000) % Deck.size()));
+    		for(Card c: Board) {
+    			System.out.println(nameOfCard[c.getRank()] + " of " + suits[c.getSuit()]);
+    		}
+    		bettingLoop();
+    		Board.add(Deck.remove((int)(Math.random() * 1000000) % Deck.size()));
+    		for(Card c: Board) {
+    			System.out.println(nameOfCard[c.getRank()] + " of " + suits[c.getSuit()]);
+    		}
+    		bettingLoop();
     	}
     	
     	private void buildDeck() {
@@ -109,13 +141,34 @@ public class PokerController {
     	}
     	
     	private void bettingLoop() {
-    		
-    		playerBet();
-    		botBet();
+    		if(pot == 0) {
+    			if(turn == 1) {
+        			pot += smallBlind + bigBlind;
+        			playerChips -= smallBlind;
+        			agentChips -= bigBlind;
+        			playerBet(25);
+        		}
+        		else {
+        			ksession.fireAllRules();
+        			agentBet(25);
+        		}
+    		}
+    		else {
+    			if(turn == 1) {
+        			playerBet(0);
+        		}
+        		else {
+        			ksession.fireAllRules();
+        			agentBet(0);
+        		}
+    		}
     	}
     	
     	private void playerBet(int chipsToCall) {
     		System.out.println("Your Cards:");
+    		for(Card c: PlayerHand) {
+    			System.out.println(nameOfCard[c.getRank()] + " of " + suits[c.getSuit()]);
+    		}
     		System.out.println("Enter your choice (case sensitive):");
     		if(chipsToCall > 0) {
 	    		System.out.println("1. Call " + chipsToCall + " chips");
@@ -125,30 +178,55 @@ public class PokerController {
     		}
     	}
     	
+    	private void agentBet(int chipsToCall) {
+    		pot += chipsToCall;
+			agentChips -= chipsToCall;
+			return;
+    	}
+    	
     	private void bettingRules(int choice, int chipsToCall) {
     		int bet = 0;
     		
     		if(choice == 1) {
     			pot += chipsToCall;
     			playerChips -= chipsToCall;
+    			if(chipsToCall == smallBlind) {
+    				ksession.fireAllRules();
+    				agentBet(0);
+    			}
+    			return;
     		}
     		if(choice == 2) {
     			System.out.println("Enter the amount you want to raise: ");
     			bet = scnr.nextInt();
-    			while(bet < bigBlind) {
-    				System.out.println("Raise must be at least" + bigBlind + " chips");
-    				bet = scnr.nextInt();
+    			if(chipsToCall > bigBlind) {
+    				while(bet < chipsToCall * 2) {
+        				System.out.println("Raise must be at least" + bigBlind + " chips");
+        				bet = scnr.nextInt();
+        			}
     			}
+    			else {
+    				while(bet < bigBlind) {
+        				System.out.println("Raise must be at least" + bigBlind + " chips");
+        				bet = scnr.nextInt();
+        			}
+    			}
+   
     			if((chipsToCall + bet) > playerChips) {
     				bet = playerChips - chipsToCall;
     			}
     			pot += chipsToCall + bet;
     			playerChips -= chipsToCall + bet;
+    			
+    			ksession.fireAllRules();
+    			agentBet(bet);
     		}
-    		if(choice == 3) {
+    		else {
     			agentChips += pot;
     			pot = 0;
+    			return;
     		}
+    	
     	}
 
 		public int getTurn() {
