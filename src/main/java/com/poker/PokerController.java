@@ -21,6 +21,7 @@ import org.drools.runtime.StatefulKnowledgeSession;
 public class PokerController {
 
     public static final void main(String[] args) {
+    	
         try {
             // load up the knowledge base
             KnowledgeBase kbase = readKnowledgeBase();
@@ -55,6 +56,9 @@ public class PokerController {
     	public static int PLAYER = 1;
     	public static int AGENT = 0;
     	
+    	private ArrayList<Card> testHand;
+    	public Evaluator eval2;
+    	
     	KnowledgeBase kbase;
         StatefulKnowledgeSession ksession;
         KnowledgeRuntimeLogger logger;
@@ -75,6 +79,17 @@ public class PokerController {
     	private int turn;
     	
     	public Game(KnowledgeBase kbase, StatefulKnowledgeSession ksession, KnowledgeRuntimeLogger logger) {
+    		testHand = new ArrayList<Card>();
+    		testHand.add(new Card(1,2));
+    		testHand.add(new Card(2,2));
+    		testHand.add(new Card(3,2));
+    		testHand.add(new Card(2,5));
+        	eval2 = new Evaluator();
+        	
+        	if(eval2.threeOfAKind(testHand)) {
+        		System.out.println("3ofakind");
+        	}
+    		
     		this.kbase = kbase;
     		this.ksession = ksession;
     		this.logger = logger;
@@ -149,7 +164,7 @@ public class PokerController {
         			playerBet(25);
         		}
         		else {
-        			ksession.fireAllRules();
+        			//ksession.fireAllRules();
         			agentBet(25);
         		}
     		}
@@ -158,7 +173,7 @@ public class PokerController {
         			playerBet(0);
         		}
         		else {
-        			ksession.fireAllRules();
+        			//ksession.fireAllRules();
         			agentBet(0);
         		}
     		}
@@ -191,7 +206,7 @@ public class PokerController {
     			pot += chipsToCall;
     			playerChips -= chipsToCall;
     			if(chipsToCall == smallBlind) {
-    				ksession.fireAllRules();
+    				//ksession.fireAllRules();
     				agentBet(0);
     			}
     			return;
@@ -218,7 +233,7 @@ public class PokerController {
     			pot += chipsToCall + bet;
     			playerChips -= chipsToCall + bet;
     			
-    			ksession.fireAllRules();
+    			//ksession.fireAllRules();
     			agentBet(bet);
     		}
     		else {
