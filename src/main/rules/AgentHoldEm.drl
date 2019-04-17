@@ -2,18 +2,29 @@ package com.poker
  
 import com.poker.PokerController.Game;
  
-rule "Hello World"
+rule "New Game"
     when
-        m : Game( turn == Game.AGENT, myTurn : turn )
+        currentGame : Game( gameState == Game.NEW_GAME, currentGameState : gameState )
     then
-        System.out.println( myTurn );
-        m.setTurn( Game.PLAYER );
-        update( m );
+        System.out.println("New Game");
+        currentGame.newGame();
+        currentGame.setGameState( Game.NEW_HAND );
+        update( currentGame );
 end
 
-rule "GoodBye"
+rule "New Hand"
     when
-        Game( turn == Game.PLAYER, myTurn : turn )
+        currentGame : Game( gameState == Game.NEW_HAND, currentGameState : gameState )
     then
-        System.out.println( myTurn );
+        System.out.println( "New Hand" );
+        currentGame.newHand();
+        currentGame.setGameState( Game.PREFLOP );
+        update( currentGame );
+end
+
+rule "Pre-Flop; Player Turn; Invalid Bet"
+    when
+        Game( gameState == Game.PREFLOP && turn = Game.Player, currentGameState : gameState )
+    then
+        System.out.println( "Pre Flop - Player Turn" );
 end

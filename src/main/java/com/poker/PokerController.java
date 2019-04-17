@@ -27,7 +27,7 @@ public class PokerController {
             StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
             KnowledgeRuntimeLogger logger = KnowledgeRuntimeLoggerFactory.newFileLogger(ksession, "test");
             // go !
-            Game message = new Game(kbase, ksession, logger);
+            Game message = new Game();
             ksession.insert(message);
             ksession.fireAllRules();
             logger.close();
@@ -52,95 +52,122 @@ public class PokerController {
     }
 
     public static class Game {
-    	public static int PLAYER = 1;
-    	public static int AGENT = 0;
+    	public static final int PLAYER = 0;
+    	public static final int AGENT = 1;
     	
-    	KnowledgeBase kbase;
-        StatefulKnowledgeSession ksession;
-        KnowledgeRuntimeLogger logger;
+    	public static final int NEW_GAME = 0;
+    	public static final int NEW_HAND = 1;
+    	public static final int PREFLOP = 2;
+    	public static final int FLOP = 3;
+    	public static final int TURN = 4;
+    	public static final int RIVER = 5;
+    	public static final int SHOWDOWN = 6;
     	
-    	private ArrayList<Card> AgentHand;
-    	private ArrayList<Card> PlayerHand;
-    	private ArrayList<Card> Board;
-    	private ArrayList<Card> Deck;
-    	private int playerChips = 1000;
-    	private int agentChips = 1000;
-    	private int smallBlind = 25;
-    	private int bigBlind = 50;
-    	private int pot = 0;
+    	public static final int FOLD = 0;
+    	public static final int CALL = 1;
+    	public static final int RAISE = 2;
+    	
+    	public static final int SMALL_BLIND = 25;
+    	public static final int BIG_BLIND = 50;
+    	public static final int CHIPS = 1000;
+    	
+        private int gameState;
+    	private ArrayList<Card> agentHand;
+    	private ArrayList<Card> playerHand;
+    	private ArrayList<Card> board;
+    	private ArrayList<Card> deck;
+    	private int playerChips;
+    	private int agentChips;
+    	private int smallBlind;
+    	private int bigBlind;
+    	private int pot;
+    	private int minBet;
+    	private int currentBet;
+    	private int playerAction;
+    	private int agentAction;
+    	
     	private String[] suits = {"Hearts", "Diamonds", "Spades", "Clubs"}; 
-    	private String[] nameOfCard = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace"};
+    	private String[] ranks = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace"};
+    	
     	private Scanner scnr = new Scanner(System.in);
     	
     	private int turn;
     	
-    	public Game(KnowledgeBase kbase, StatefulKnowledgeSession ksession, KnowledgeRuntimeLogger logger) {
-    		this.kbase = kbase;
-    		this.ksession = ksession;
-    		this.logger = logger;
-    		
+    	public Game() {
     		this.turn = 0;
     		if(Math.random() < 0.5) {
     			this.turn = 1;
     		}
-    		
-        	this.newHand();
     	}
     	
-    	private void newHand() {
-        	AgentHand = new ArrayList<Card>();
-        	PlayerHand = new ArrayList<Card>();
-        	Board = new ArrayList<Card>();
-        	
-    		this.buildDeck();
-    		this.dealCards();
-    		
-    		gameLoop();
+    	public void newGame() {
+    		this.gameState = Game.NEW_GAME;
+        	this.playerChips = Game.CHIPS;
+        	this.agentChips = Game.CHIPS;
+        	this.smallBlind = Game.SMALL_BLIND;
+        	this.bigBlind = Game.BIG_BLIND;
+        	this.pot = 0;
     	}
     	
-    	private void gameLoop() {
+    	public void newHand() {
+        	agentHand = new ArrayList<Card>();
+        	playerHand = new ArrayList<Card>();
+        	board = new ArrayList<Card>();
+    		deck = new ArrayList<Card>();
+    		this.currentBet = 0;
+        	this.pot = 0;
+    		this.minBet = Game.BIG_BLIND;
+    	}
+    	
+    	public void gameLoop() {
     		bettingLoop();
-    		Board.add(Deck.remove((int)(Math.random() * 1000000) % Deck.size()));
-    		Board.add(Deck.remove((int)(Math.random() * 1000000) % Deck.size()));
-    		Board.add(Deck.remove((int)(Math.random() * 1000000) % Deck.size()));
-    		for(Card c: Board) {
-    			System.out.println(nameOfCard[c.getRank()] + " of " + suits[c.getSuit()]);
+    		board.add(deck.remove((int)(Math.random() * 1000000) % deck.size()));
+    		board.add(deck.remove((int)(Math.random() * 1000000) % deck.size()));
+    		board.add(deck.remove((int)(Math.random() * 1000000) % deck.size()));
+    		for(Card c: board) {
+    			System.out.println(ranks[c.getRank()] + " of " + suits[c.getSuit()]);
     		}
     		bettingLoop();
-    		Board.add(Deck.remove((int)(Math.random() * 1000000) % Deck.size()));
-    		for(Card c: Board) {
-    			System.out.println(nameOfCard[c.getRank()] + " of " + suits[c.getSuit()]);
+    		board.add(deck.remove((int)(Math.random() * 1000000) % deck.size()));
+    		for(Card c: board) {
+    			System.out.println(ranks[c.getRank()] + " of " + suits[c.getSuit()]);
     		}
     		bettingLoop();
-    		Board.add(Deck.remove((int)(Math.random() * 1000000) % Deck.size()));
-    		for(Card c: Board) {
-    			System.out.println(nameOfCard[c.getRank()] + " of " + suits[c.getSuit()]);
+    		board.add(deck.remove((int)(Math.random() * 1000000) % deck.size()));
+    		for(Card c: board) {
+    			System.out.println(ranks[c.getRank()] + " of " + suits[c.getSuit()]);
     		}
     		bettingLoop();
     	}
     	
-    	private void buildDeck() {
-    		Deck = new ArrayList<Card>();
-    		
+    	public void buildDeck() {
     		for(int i = 0; i < 4; i++) {
     			for(int j = 0; j < 13; j++) {
-    				Deck.add(new Card(i, j));
+    				deck.add(new Card(i, j));
     			}
     		}
-    		System.out.println(Deck.size());
+    		System.out.println(deck.size());
     	}
     	
-    	private void dealCards() {
- 
-    		PlayerHand.add(Deck.remove((int)(Math.random() * 1000000) % Deck.size()));
-    		PlayerHand.add(Deck.remove((int)(Math.random() * 1000000) % Deck.size()));
+    	public void dealBoardCard() {
+    		board.add(deck.remove((int)(Math.random() * 1000000) % deck.size()));
+    	}
+    	
+
+    	public void dealHandCards() {
+    		playerHand.add(deck.remove((int)(Math.random() * 1000000) % deck.size()));
+    		playerHand.add(deck.remove((int)(Math.random() * 1000000) % deck.size()));
     		
-    		AgentHand.add(Deck.remove((int)(Math.random() * 1000000) % Deck.size()));
-    		AgentHand.add(Deck.remove((int)(Math.random() * 1000000) % Deck.size()));
+    		agentHand.add(deck.remove((int)(Math.random() * 1000000) % deck.size()));
+    		agentHand.add(deck.remove((int)(Math.random() * 1000000) % deck.size()));
     		
     	}
     	
-    	private void bettingLoop() {
+    	public void getPlayerAction() {
+    		
+    	}
+    	
+    	public void bettingLoop() {
     		if(pot == 0) {
     			if(turn == 1) {
         			pot += smallBlind + bigBlind;
@@ -149,7 +176,6 @@ public class PokerController {
         			playerBet(25);
         		}
         		else {
-        			ksession.fireAllRules();
         			agentBet(25);
         		}
     		}
@@ -158,16 +184,15 @@ public class PokerController {
         			playerBet(0);
         		}
         		else {
-        			ksession.fireAllRules();
         			agentBet(0);
         		}
     		}
     	}
     	
-    	private void playerBet(int chipsToCall) {
+    	public void playerBet(int chipsToCall) {
     		System.out.println("Your Cards:");
-    		for(Card c: PlayerHand) {
-    			System.out.println(nameOfCard[c.getRank()] + " of " + suits[c.getSuit()]);
+    		for(Card c: playerHand) {
+    			System.out.println(ranks[c.getRank()] + " of " + suits[c.getSuit()]);
     		}
     		System.out.println("Enter your choice (case sensitive):");
     		if(chipsToCall > 0) {
@@ -178,20 +203,19 @@ public class PokerController {
     		}
     	}
     	
-    	private void agentBet(int chipsToCall) {
+    	public void agentBet(int chipsToCall) {
     		pot += chipsToCall;
 			agentChips -= chipsToCall;
 			return;
     	}
     	
-    	private void bettingRules(int choice, int chipsToCall) {
+    	public void bettingRules(int choice, int chipsToCall) {
     		int bet = 0;
     		
     		if(choice == 1) {
     			pot += chipsToCall;
     			playerChips -= chipsToCall;
     			if(chipsToCall == smallBlind) {
-    				ksession.fireAllRules();
     				agentBet(0);
     			}
     			return;
@@ -218,7 +242,6 @@ public class PokerController {
     			pot += chipsToCall + bet;
     			playerChips -= chipsToCall + bet;
     			
-    			ksession.fireAllRules();
     			agentBet(bet);
     		}
     		else {
@@ -226,8 +249,95 @@ public class PokerController {
     			pot = 0;
     			return;
     		}
-    	
     	}
+
+		public int getGameState() {
+			return gameState;
+		}
+
+		public void setGameState(int gameState) {
+			this.gameState = gameState;
+		}
+
+		public ArrayList<Card> getAgentHand() {
+			return agentHand;
+		}
+
+		public void setAgentHand(ArrayList<Card> agentHand) {
+			this.agentHand = agentHand;
+		}
+
+		public ArrayList<Card> getPlayerHand() {
+			return playerHand;
+		}
+
+		public void setPlayerHand(ArrayList<Card> playerHand) {
+			this.playerHand = playerHand;
+		}
+
+		public ArrayList<Card> getBoard() {
+			return board;
+		}
+
+		public void setBoard(ArrayList<Card> board) {
+			this.board = board;
+		}
+
+		public ArrayList<Card> getDeck() {
+			return deck;
+		}
+
+		public void setDeck(ArrayList<Card> deck) {
+			this.deck = deck;
+		}
+
+		public int getPlayerChips() {
+			return playerChips;
+		}
+
+		public void setPlayerChips(int playerChips) {
+			this.playerChips = playerChips;
+		}
+
+		public int getAgentChips() {
+			return agentChips;
+		}
+
+		public void setAgentChips(int agentChips) {
+			this.agentChips = agentChips;
+		}
+
+		public int getPot() {
+			return pot;
+		}
+
+		public void setPot(int pot) {
+			this.pot = pot;
+		}
+
+		public int getMinBet() {
+			return minBet;
+		}
+
+		public void setMinBet(int minBet) {
+			this.minBet = minBet;
+		}
+
+		public int getCurrentBet() {
+			return currentBet;
+		}
+
+		public void setCurrentBet(int currentBet) {
+			this.currentBet = currentBet;
+		}
+
+		public int getAgentAction() {
+			return agentAction;
+		}
+
+		public void setAgentAction(int agentAction) {
+			this.agentAction = agentAction;
+		}
 
 		public int getTurn() {
 			return turn;
@@ -236,7 +346,9 @@ public class PokerController {
 		public void setTurn(int turn) {
 			this.turn = turn;
 		}
-    	
-    	
+
+		public void setPlayerAction(int playerAction) {
+			this.playerAction = playerAction;
+		}
     }
 }
