@@ -22,9 +22,65 @@ rule "New Hand"
         update( currentGame );
 end
 
-rule "Pre-Flop; Player Turn; Invalid Bet"
+rule "Pre-Flop; Player Turn;"
     when
-        Game( gameState == Game.PREFLOP && turn = Game.Player, currentGameState : gameState )
+        Game( gameState == Game.PREFLOP && turn == Game.PLAYER, currentGameState : gameState )
     then
         System.out.println( "Pre Flop - Player Turn" );
+end
+
+rule "Pre-Flop; Agent Turn;"
+    when
+        Game( gameState == Game.PREFLOP && turn == Game.AGENT, currentGameState : gameState )
+    then
+        System.out.println( "Pre Flop - Agent Turn" );
+end
+
+rule "Flop; Player Turn;"
+    when
+        Game( gameState == Game.FLOP && turn == Game.PLAYER, currentGameState : gameState )
+    then
+        System.out.println( "Flop - Player Turn" );
+end
+
+rule "Flop; Agent Turn;"
+    when
+        Game( gameState == Game.FLOP && turn == Game.AGENT, currentGameState : gameState )
+    then
+        System.out.println( "Flop - Agent Turn" );
+end
+
+rule "Turn; Player Turn;"
+    when
+        Game( gameState == Game.TURN && turn == Game.PLAYER, currentGameState : gameState )
+    then
+        System.out.println( "Turn - Player Turn" );
+end
+
+rule "Turn; Agent Turn;"
+    when
+        Game( gameState == Game.TURN && turn == Game.AGENT, currentGameState : gameState )
+    then
+        System.out.println( "Turn - Agent Turn" );
+end
+
+rule "River; Player Turn;"
+    when
+        Game( gameState == Game.RIVER && turn == Game.PLAYER, currentGameState : gameState )
+    then
+        System.out.println( "River - Player Turn" );
+end
+
+rule "River; Agent Turn;"
+    when
+        Game( gameState == Game.RIVER && turn == Game.AGENT, currentGameState : gameState )
+    then
+        System.out.println( "River - Agent Turn" );
+end
+
+rule "Showdown"
+    when
+        Game( gameState == Game.SHOWDOWN, currentGameState : gameState )
+    then
+        System.out.println( "Turn - Agent Turn" );
 end

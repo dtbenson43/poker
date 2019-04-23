@@ -25,12 +25,12 @@ public class PokerController {
             // load up the knowledge base
             KnowledgeBase kbase = readKnowledgeBase();
             StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
-            KnowledgeRuntimeLogger logger = KnowledgeRuntimeLoggerFactory.newFileLogger(ksession, "test");
+            // KnowledgeRuntimeLogger logger = KnowledgeRuntimeLoggerFactory.newFileLogger(ksession, "test");
             // go !
             Game message = new Game();
             ksession.insert(message);
             ksession.fireAllRules();
-            logger.close();
+            // logger.close();
         } catch (Throwable t) {
             t.printStackTrace();
         }
@@ -189,13 +189,21 @@ public class PokerController {
     		}
     	}
     	
+    	public void printPlayerHand() {
+    		
+    	}
+    	
+    	public void printAgentHand() {
+    		
+    	}
+    	
+    	public void printTableCards() {
+    		
+    	}
+    	
     	public void playerBet(int chipsToCall) {
-    		System.out.println("Your Cards:");
-    		for(Card c: playerHand) {
-    			System.out.println(ranks[c.getRank()] + " of " + suits[c.getSuit()]);
-    		}
     		System.out.println("Enter your choice (case sensitive):");
-    		if(chipsToCall > 0) {
+    		if(this.currentBet > 0) {
 	    		System.out.println("1. Call " + chipsToCall + " chips");
 	    		System.out.println("2. Raise");
 	    		System.out.println("3. Fold");
