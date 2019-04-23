@@ -2,10 +2,12 @@ package com.poker;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.stream.Stream;
 
-public class Evaluator {
+public class Evaluator{
 	
 	public Evaluator() {
 		
@@ -72,6 +74,11 @@ public class Evaluator {
 				}
 			}
 		}
+		return false;
+	}
+	
+	public boolean straight(ArrayList<Card> hand) {
+		Collections.sort(hand);
 		return false;
 	}
 }

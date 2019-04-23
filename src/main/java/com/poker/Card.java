@@ -1,6 +1,6 @@
 package com.poker;
 
-public class Card {
+public class Card implements Comparable{
 	private int suit;
 	private int rank;
 	
@@ -23,5 +23,10 @@ public class Card {
 
 	public void setRank(int rank) {
 		this.rank = rank;
+	}
+
+	public int compareTo(Card c) {
+		return (this.getRank() < c.getRank() ? -1 : 
+            (this.getRank() == c.getRank() ? 0 : 1)); 
 	}
 }
