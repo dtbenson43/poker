@@ -76,7 +76,8 @@ public class PokerController {
     	private ArrayList<Card> playerHand;
     	private ArrayList<Card> board;
     	private ArrayList<Card> deck;
-    	private int playerChips;
+
+		private int playerChips;
     	private int agentChips;
     	private int smallBlind;
     	private int bigBlind;
@@ -85,8 +86,10 @@ public class PokerController {
     	private int currentBet;
     	private int playerAction;
     	private int agentAction;
-    	
-    	private String[] suits = {"Hearts", "Diamonds", "Spades", "Clubs"}; 
+    	private boolean prevBetOrCheck;
+    	private int dealer;
+
+		private String[] suits = {"Hearts", "Diamonds", "Spades", "Clubs"}; 
     	private String[] ranks = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace"};
     	
     	private Scanner scnr = new Scanner(System.in);
@@ -97,6 +100,7 @@ public class PokerController {
     		this.turn = 0;
     		if(Math.random() < 0.5) {
     			this.turn = 1;
+    			this.dealer = 1;
     		}
     	}
     	
@@ -203,17 +207,38 @@ public class PokerController {
     	
     	public void playerBet(int chipsToCall) {
     		System.out.println("Enter your choice (case sensitive):");
-    		if(this.currentBet > 0) {
+    		if(chipsToCall > 0) {
 	    		System.out.println("1. Call " + chipsToCall + " chips");
 	    		System.out.println("2. Raise");
+	    		System.out.println("3. Fold");
+	    		bettingRules(scnr.nextInt(), chipsToCall);
+    		}
+    		else {
+    			System.out.println("1. Check");
+	    		System.out.println("2. Bet - Must be greater than " + bigBlind + " chips");
 	    		System.out.println("3. Fold");
 	    		bettingRules(scnr.nextInt(), chipsToCall);
     		}
     	}
     	
     	public void agentBet(int chipsToCall) {
-    		pot += chipsToCall;
-			agentChips -= chipsToCall;
+    		if(chipsToCall > agentChips) {
+    			pot += agentChips;
+    			agentChips = 0;
+    		} else {
+        		pot += chipsToCall;
+    			agentChips -= chipsToCall;
+    			System.out.println("Agent Chips = " + agentChips);
+    			if (prevBetOrCheck) {
+    				gameState += 1;
+    				currentBet = 0;
+    				turn = dealer == PLAYER ? AGENT : PLAYER;
+    				prevBetOrCheck = false;
+    			} else {
+    				prevBetOrCheck = true;
+    				turn = PLAYER;
+    			}
+    		}
 			return;
     	}
     	
@@ -223,17 +248,28 @@ public class PokerController {
     		if(choice == 1) {
     			pot += chipsToCall;
     			playerChips -= chipsToCall;
+    			System.out.println("Player Chips = " + playerChips);
     			if(chipsToCall == smallBlind) {
-    				agentBet(0);
+    				turn = AGENT;
+    			}
+   
+    			if(isPrevBetOrCheck()) {
+    				gameState += 1;
+    				currentBet = 0;
+    				turn = dealer == PLAYER ? AGENT : PLAYER;
+    				prevBetOrCheck = false;
+    			}
+    			else {
+    				setPrevBetOrCheck(true);
     			}
     			return;
     		}
     		if(choice == 2) {
-    			System.out.println("Enter the amount you want to raise: ");
+    			System.out.println("Enter the amount you want to raise to: ");
     			bet = scnr.nextInt();
     			if(chipsToCall > bigBlind) {
     				while(bet < chipsToCall * 2) {
-        				System.out.println("Raise must be at least" + bigBlind + " chips");
+        				System.out.println("Raise must be at least" + chipsToCall * 2 + " chips");
         				bet = scnr.nextInt();
         			}
     			}
@@ -244,18 +280,65 @@ public class PokerController {
         			}
     			}
    
-    			if((chipsToCall + bet) > playerChips) {
+    			if((bet) > playerChips) {
     				bet = playerChips - chipsToCall;
     			}
     			pot += chipsToCall + bet;
     			playerChips -= chipsToCall + bet;
-    			
-    			agentBet(bet);
+    			System.out.println("Player Chips = " + playerChips);
+    			setPrevBetOrCheck(true);
+    			currentBet = bet;
+    			turn = AGENT;
     		}
     		else {
     			agentChips += pot;
     			pot = 0;
+    			System.out.println("Player Chips = " + playerChips);
+    			System.out.println("Agent Chips = " + agentChips);
+    			gameState = NEW_HAND;
     			return;
+    		}
+    	}
+    	
+    	public void postBlinds() {
+    		if (dealer == PLAYER) {
+    			if (playerChips < smallBlind) {
+    				pot += playerChips;
+    				playerChips = 0;
+    			}
+    			else
+    			{
+    				pot += smallBlind;
+    				playerChips -= smallBlind;
+    			}
+    			if (agentChips < bigBlind) {
+    				pot += agentChips;
+    				agentChips = 0;
+    			}
+    			else
+    			{
+    				pot += bigBlind;
+    				playerChips -= bigBlind;
+    			}
+    		} else {
+    			if (playerChips < bigBlind) {
+    				pot += playerChips;
+    				playerChips = 0;
+    			}
+    			else
+    			{
+    				pot += smallBlind;
+    				playerChips -= smallBlind;
+    			}
+    			if (agentChips < smallBlind) {
+    				pot += agentChips;
+    				agentChips = 0;
+    			}
+    			else
+    			{
+    				pot += smallBlind;
+    				playerChips -= smallBlind;
+    			}
     		}
     	}
 
@@ -357,6 +440,38 @@ public class PokerController {
 
 		public void setPlayerAction(int playerAction) {
 			this.playerAction = playerAction;
+		}
+
+		public boolean isPrevBetOrCheck() {
+			return prevBetOrCheck;
+		}
+
+		public void setPrevBetOrCheck(boolean prevBetOrCheck) {
+			this.prevBetOrCheck = prevBetOrCheck;
+		}
+		
+    	public int getSmallBlind() {
+			return smallBlind;
+		}
+
+		public void setSmallBlind(int smallBlind) {
+			this.smallBlind = smallBlind;
+		}
+
+		public int getBigBlind() {
+			return bigBlind;
+		}
+
+		public void setBigBlind(int bigBlind) {
+			this.bigBlind = bigBlind;
+		}
+		
+    	public int getDealer() {
+			return dealer;
+		}
+
+		public void setDealer(int dealer) {
+			this.dealer = dealer;
 		}
     }
 }
