@@ -51,7 +51,9 @@ public class Evaluator
 		
 		int ourRank = (valueHand(bestHand(agentCards, boardCards)));
 		
-		ArrayList<Card> newDeck = PokerController.buildDeck();
+		ArrayList<Card> newDeck = PokerController.Game.buildDeck();
+		newDeck.indexOf();
+		
 		
 		return 0.0;
 	}

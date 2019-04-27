@@ -24,4 +24,12 @@ public class Card {
 	public void setRank(int rank) {
 		this.rank = rank;
 	}
+	
+	public boolean equals(Card compCard) {
+		if(compCard.getRank() == this.getRank()
+		&& compCard.getSuit() == this.getRank()) {
+			return true;
+		}
+		return false;
+	}
 }
