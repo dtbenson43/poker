@@ -116,6 +116,7 @@ rule "River; Player Turn;"
     then
         System.out.println( "River - Player Turn" );
         currentGame.playerBet(currentGame.getCurrentBet());
+        currentGame.printHand(Evaluator.bestHand(currentGame.getPlayerHand(), currentGame.getBoard()));
         update( currentGame );
 end
 
@@ -145,6 +146,17 @@ rule "Showdown"
         currentGame : Game( gameState == Game.SHOWDOWN, currentGameState : gameState )
     then
         System.out.println( "Showdown" );
-
+        currentGame.printAgentHand();
+        currentGame.printPlayerHand();
+        if(Evaluator.valueHand(Evaluator.bestHand(currentGame.getPlayerHand(), currentGame.getBoard())) > Evaluator.valueHand(Evaluator.bestHand(currentGame.getAgentHand(), currentGame.getBoard()))){
+        	currentGame.playerWin();
+        }
+        else if(Evaluator.valueHand(Evaluator.bestHand(currentGame.getPlayerHand(), currentGame.getBoard())) == Evaluator.valueHand(Evaluator.bestHand(currentGame.getAgentHand(), currentGame.getBoard()))){
+        	currentGame.splitPot();
+        }
+        else{
+        	currentGame.agentWin();
+        }
+        currentGame.setGameState( Game.NEW_HAND );
         update( currentGame );
 end
