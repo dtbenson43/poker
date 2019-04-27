@@ -86,7 +86,6 @@ public class PokerController {
 		private int playerChips;
     	private int agentChips;
     	
-    	private int minBet;
     	private int currentBet;
     	private boolean prevBetOrCheck;
     	private int dealer;
@@ -124,11 +123,12 @@ public class PokerController {
     		dealHandCards();
     		this.currentBet = 0;
         	this.pot = 0;
-    		this.minBet = Game.BIG_BLIND;
     		dealer = dealer == PLAYER ? AGENT : PLAYER;
     		turn = dealer;
     		agentChipsStartOfHand = agentChips;
     		playerChipsStartOfHand = playerChips;
+    		setAgentAllIn(false);
+    		setPlayerAllIn(false);
     		postBlinds();
     	}
     	
@@ -138,7 +138,6 @@ public class PokerController {
     				deck.add(new Card(i, j));
     			}
     		}
-    		System.out.println(deck.size());
     	}
     	
     	public void dealBoardCard() {
@@ -150,6 +149,7 @@ public class PokerController {
     		for(Card c: board) {
     			System.out.println(ranks[c.getRank()] + " of " + suits[c.getSuit()]);
     		}
+    		System.out.println("");
     	}
     	
 
@@ -167,6 +167,7 @@ public class PokerController {
     		for(Card c: playerHand) {
     			System.out.println(ranks[c.getRank()] + " of " + suits[c.getSuit()]);
     		}
+    		System.out.println("");
     	}
     	
     	public void playerBet(int chipsToCall) {
@@ -187,10 +188,8 @@ public class PokerController {
     	}
     	
     	public void agentBet(int chipsToCall) {
-    		if(chipsToCall > agentChips) {
-//    			pot += agentChips;
-//    			agentChips = 0;
-    			agentAllIn();
+    		if(chipsToCall >= agentChips) {
+    			agentGoAllIn();
     		} 
     		else {
         		pot += chipsToCall;
@@ -216,35 +215,31 @@ public class PokerController {
     		int bet = 0;
     		
     		if(choice == 1) {
-    			if(chipsToCall > playerChips) {
-        			playerAllIn();
+    			if(chipsToCall >= playerChips) {
+        			playerGoAllIn();
         		} 
     			else {
 	    			pot += chipsToCall;
 	    			playerChips -= chipsToCall;
 	    			System.out.println("Player Chips = " + playerChips);
-//	    			if(chipsToCall == smallBlind) {
-//	    				currentBet = 0;
-//	    				turn = AGENT;
-//	    			}
+	    			currentBet = 0;
+	    			turn = AGENT;
 	   
 	    			if(isPrevBetOrCheck()) {
 	    				gameState += 1;
-	    				currentBet = 0;
 	    				turn = dealer == PLAYER ? AGENT : PLAYER;
 	    				prevBetOrCheck = false;
 	    			}
 	    			else {
 	    				setPrevBetOrCheck(true);
 	    			}
-	    			currentBet = 0;
-	    			turn = AGENT;
     			}
     			return;
     		}
     		if(choice == 2) {
     			System.out.println("Enter the amount you want to raise by: ");
     			bet = scnr.nextInt();
+    			
     			if(chipsToCall > bigBlind) {
     				while(bet < chipsToCall) {
         				System.out.println("Raise must be at least" + chipsToCall + " chips");
@@ -257,9 +252,9 @@ public class PokerController {
         				bet = scnr.nextInt();
         			}
     			}
-   
-    			if((bet + chipsToCall) > playerChips) {
-    				playerAllIn();
+    			currentBet = bet;
+    			if((bet + chipsToCall) >= playerChips) {
+    				playerGoAllIn();
     			}
     			else {
 	    			pot += bet + chipsToCall;
@@ -268,7 +263,7 @@ public class PokerController {
     			}
     			System.out.println("Player Chips = " + playerChips);
     			setPrevBetOrCheck(true);
-    			currentBet = bet;
+    			
     			turn = AGENT;
     		}
     		else {
@@ -281,16 +276,30 @@ public class PokerController {
     		}
     	}
     	
-    	public void playerAllIn() {
+    	public void playerGoAllIn() {
     		pot += playerChips;
     		playerChips = 0;
-    		playerAllIn = true;
+    		setPlayerAllIn(true);
+    		if(pot > playerChipsStartOfHand * 2) {
+    			agentChips += (pot - playerChipsStartOfHand * 2);
+    			pot = playerChipsStartOfHand * 2;
+    		}
+    		else {
+    			currentBet = (agentChipsStartOfHand * 2) - pot;
+    		}
     	}
     	
-    	public void agentAllIn() {
+    	public void agentGoAllIn() {
     		pot += agentChips;
     		agentChips = 0;
-    		agentAllIn = true;
+    		setAgentAllIn(true);
+    		if(pot > agentChipsStartOfHand * 2) {
+    			playerChips += (pot - agentChipsStartOfHand * 2);
+    			pot = agentChipsStartOfHand * 2;
+    		}
+    		else {
+    			currentBet = (agentChipsStartOfHand * 2) - pot;
+    		}
     	}
     	
     	
@@ -401,14 +410,6 @@ public class PokerController {
 			this.pot = pot;
 		}
 
-		public int getMinBet() {
-			return minBet;
-		}
-
-		public void setMinBet(int minBet) {
-			this.minBet = minBet;
-		}
-
 		public int getCurrentBet() {
 			return currentBet;
 		}
@@ -455,6 +456,26 @@ public class PokerController {
 
 		public void setDealer(int dealer) {
 			this.dealer = dealer;
+		}
+
+		public boolean getPlayerAllIn() {
+			return playerAllIn;
+		}
+
+		public void setPlayerAllIn(boolean playerAllIn) {
+			this.playerAllIn = playerAllIn;
+		}
+
+		public boolean getAgentAllIn() {
+			return agentAllIn;
+		}
+
+		public void setAgentAllIn(boolean agentAllIn) {
+			this.agentAllIn = agentAllIn;
+		}
+		
+		public int getBoardSize() {
+			return board.size();
 		}
     }
 }
