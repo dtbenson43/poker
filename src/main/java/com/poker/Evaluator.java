@@ -1,6 +1,8 @@
 package com.poker;
 
+import org.apache.commons.math3.util.CombinatoricsUtils;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /* --------------------------------------------------------------
 Contains method to evaluate the strength of Poker hands
@@ -43,72 +45,262 @@ public class Evaluator
 	  Methods used to determine a certain Poker hand
 	 ***********************************************************/
 	
+	public static double handStrength( ArrayList<Card> agentCards, ArrayList<Card> boardCards) {
+		if (boardCards.size() == 0) {
+			return valueHandPreFlop(agentCards);
+		}
+		
+		int ahead =  0;
+		int tied = 0;
+		int behind = 0;
+		
+		int ourRank;
+		
+		return 0.0;
+	}
+	
+	public static ArrayList<Card> bestHand( ArrayList<Card> agentCards, ArrayList<Card> boardCards ) {
+		ArrayList<Card> tempHand = new ArrayList<Card>(agentCards);
+		tempHand.addAll(boardCards);
+//		for(int i = 0; i < boardCards.size(); i++) {
+//			for(int j = i; j < boardCards.size(); j++) {
+//				
+//			}
+//		}
+		
+		Iterator<int[]> temp = org.apache.commons.math3.util.CombinatoricsUtils.combinationsIterator(tempHand.size() - 5, tempHand.size());
+		
+		int bestScore = 0;
+		ArrayList<Card> bestHand = null;
+//		while(temp.hasNext()) {
+//			int[] combinations = temp.next();
+//			tempHand = new ArrayList<Card>;
+//			for(int idx : com)
+//		}
+		while(temp.hasNext()) {
+			ArrayList<Card> testHand = new ArrayList<Card>();
+			testHand.addAll(tempHand);
+			int[] combinations = temp.next();
+//			for(int idx: combinations) {
+//				testHand.remove(idx);
+//			}
+			for(int i = 0; i < combinations.length; i++) {
+				testHand.remove(combinations[i]-i);
+			}
+			int newScore = valueHand(testHand);
+			if( newScore > bestScore) {
+				bestHand = testHand;
+				bestScore = newScore;
+			}
+		}
+		return bestHand;
+	}
+	
+	public static double valueHandPreFlop( ArrayList<Card> h ) {
+		int handArray[] = { 
+				h.get(0).getRank(),
+				h.get(1).getRank(),
+				h.get(0).getSuit() == h.get(1).getSuit() ? 1 : 0,
+				h.get(0).getSuit() != h.get(1).getSuit() ? 1 : 0	
+		};
+		
+		int[][] holes = {
+				 //1  2  s  o
+				 { 12,12,0,0 },
+				 { 11,11,0,0 },
+				 { 10,10,0,0 },
+				 { 12,11,1,0 },
+				 { 9, 9, 0,0 },
+				 { 12,10,1,0 },
+				 { 11,10,1,0 },
+				 { 12,9, 1,0 },
+				 { 11,9, 1,0 },
+				 { 8, 8, 0,0 },
+				 { 12,11,0,1 },
+				 { 12, 8,1,0 },
+				 { 10, 9,1,0 },
+				 { 11, 8,1,0 },
+				 { 10, 8,1,0 },
+				 { 9, 8, 1,0 },
+				 { 7, 7, 0,0 },
+				 { 12,10,0,1 },
+				 { 12, 7,1,0 },
+				 { 11,10,0,1 },
+				 { 6, 6, 0,0 },
+				 { 11, 7,1,0 },
+				 { 8, 7, 1,0 },
+				 { 12, 6,1,0 },
+				 { 10, 7,1,0 },
+				 { 9, 7, 1,0 },
+				 { 12, 9,0,1 },
+				 { 12, 3,1,0 },
+				 { 5, 5, 0,0 },
+				 { 12, 5,1,0 },
+				 { 11, 9,0,1 },
+				 { 12, 2,1,0 },
+				 { 12, 1,1,0 },
+				 { 12, 4,1,0 },
+				 { 10, 9,0,1 },
+				 { 4, 4, 0,0 },
+				 { 11, 6,1,0 },
+				 { 8, 6, 1,0 },
+				 { 12, 0,1,0 },
+				 { 7, 6, 1,0 },
+				 { 9, 6, 1,0 },
+				 { 12, 8,0,1 },
+				 { 10, 6,1,0 },
+				 { 11, 5,1,0 },
+				 { 11, 8,0,1 },
+				 { 3, 3, 0,0 },
+				 { 9, 8, 0,1 },
+				 { 6, 5, 1,0 },
+				 { 10, 8,0,1 },
+				 { 2,2,0,0 },
+				 { 1,1,0,0 },
+				 { 0,0,0,0 },
+				 { 11,4,1,0 },
+				 { 7,5,1,0 },
+				 { 11,3,1,0 },
+				 { 5,4,1,0 },
+				 { 8,5,1,0 },
+				 { 11,2,1,0 },
+				 { 11,1,1,0 },
+				 { 11,0,1,0 },
+				 { 10,5,1,0 },
+				 { 6,4,1,0 },
+				 { 4,3,1,0 },
+				 { 9,5,1,0 },
+				 { 3,2,1,0 },
+				 { 10,4,1,0 },
+				 { 5,3,1,0 },
+				 { 7,4,1,0 },
+				 { 10,3,1,0 },
+				 { 4,2,1,0 },
+				 { 10,2,1,0 },
+				 { 10,1,1,0 },
+				 { 8,7,0,1 },
+				 { 8,4,1,0 },
+				 { 10,0,1,0 },
+				 { 12,7,0,1 },
+				 { 3,1,1,0 },
+				 { 6,3,1,0 },
+				 { 9,4,1,0 },
+				 { 9,7,0,1 },
+				 { 11,7,0,1 },
+				 { 9,3,1,0 },
+				 { 10,7,0,1 },
+				 { 2,1,1,0 },
+				 { 5,2,1,0 },
+				 { 9,2,1,0 },
+				 { 9,1,1,0 },
+				 { 7,3,1,0 },
+				 { 9,0,1,0 },
+				 { 4,1,1,0 },
+				 { 12,6,0,1 },
+				 { 3,0,1,0 },
+				 { 8,3,1,0 },
+				 { 6,2,1,0 },
+				 { 8,2,1,0 },
+				 { 8,1,1,0 },
+				 { 2,0,1,0 },
+				 { 8,0,1,0 },
+				 { 7,6,0,1 },
+				 { 8,6,0,1 },
+				 { 12,3,0,1 },
+				 { 12,5,0,1 },
+				 { 5,1,1,0 },
+				 { 12,2,0,1 },
+				 { 1,0,1,0 },
+				 { 7,2,1,0 },
+				 { 7,1,1,0 },
+				 { 9,6,0,1 },
+				 { 12,1,0,1 },
+				 { 4,0,1,0 },
+				 { 7,0,1,0 },
+				 { 11,6,0,1 },
+				 { 12,4,0,1 },
+				 { 6,5,0,1 },
+				 { 10,6,0,1 },
+				 { 6,1,1,0 },
+				 { 12,0,0,1 },
+				 { 6,0,1,0 },
+				 { 7,5,0,1 },
+				 { 5,0,1,0 },
+				 { 5,4,0,1 },
+				 { 11,5,0,1 },
+				 { 4,3,0,1 },
+				 { 8,5,0,1 },
+				 { 11,4,0,1 },
+				 { 6,4,0,1 },
+				 { 3,2,0,1 },
+				 { 11,3,0,1 },
+				 { 9,5,0,1 },
+				 { 5,3,0,1 },
+				 { 10,5,0,1 },
+				 { 11,2,0,1 },
+				 { 11,1,0,1 },
+				 { 7,4,0,1 },
+				 { 11,0,0,1 },
+				 { 4,2,0,1 },
+				 { 10,4,0,1 },
+				 { 3,1,0,1 },
+				 { 6,3,0,1 },
+				 { 8,4,0,1 },
+				 { 10,3,0,1 },
+				 { 2,1,0,1 },
+				 { 10,2,0,1 },
+				 { 10,1,0,1 },
+				 { 5,2,0,1 },
+				 { 10,0,0,1 },
+				 { 9,4,0,1 },
+				 { 4,1,0,1 },
+				 { 9,3,0,1 },
+				 { 7,3,0,1 },
+				 { 3,0,0,1 },
+				 { 9,2,0,1 },
+				 { 9,1,0,1 },
+				 { 2,0,0,1 },
+				 { 9,0,0,1 },
+				 { 6,2,0,1 },
+				 { 8,3,0,1 },
+				 { 8,2,0,1 },
+				 { 1,0,0,1 },
+				 { 8,1,0,1 },
+				 { 5,1,0,1 },
+				 { 8,0,0,1 },
+				 { 4,0,0,1 },
+				 { 7,2,0,1 },
+				 { 7,1,0,1 },
+				 { 7,0,0,1 },
+				 { 6,1,0,1 },
+				 { 6,0,0,1 },
+				 { 5,0,0,1 },
+		};
+		
+		int count = 0;
+		for(int[] hand : holes) {
+			if(handArray[0] == hand[0] && handArray[1] == hand[1]) {
+				if(hand[2] == 1 && handArray[2] == 1) {
+					return (double)(((double)169 - (double)count) / (double)169);
+				}
+				
+				if(hand[3] == 1 && handArray[3] == 1) {
+					return (double)(((double)169 - (double)count) / (double)169);
+				}
+				
+				if(hand[2] == 0 && hand[3] == 0) {
+					return (double)(((double)169 - (double)count) / (double)169);
+				}
+			}
+			count++;
+		}
+		
+		return (double)0;
+	}
+	
 	/* --------------------------------------------------------
 	   valueHand(): return value of a hand
 	   -------------------------------------------------------- */
-	public static int valueHandPreFlop( ArrayList<Card> h ) {
-		int[][] holes = {
-				//1   2  s  o
-				{12, 12, 0, 0}, // 1
-				{11, 11, 0, 0}, // 2
-				{10, 10, 0, 0}, // 3
-				{12, 11, 1, 0}, // 4
-				{ 9,  9, 0, 0}, // 5
-				{12, 10, 1, 0}, // 6
-				{11, 10, 1, 0}, // 7
-				{12,  9, 1, 0}, // 8
-				{}, // 9
-				{}, // 10
-				{}, // 11
-				{}, // 12
-				{}, // 13
-				{}, // 14
-				{}, // 15
-				{}, // 16
-				{}, // 17
-				{}, // 18
-				{}, // 19
-				{}, // 20
-				{}, // 21
-				{}, // 22
-				{}, // 23
-				{}, // 24
-				{}, // 25
-				{}, // 26
-				{}, // 27
-				{}, // 28
-				{}, // 9
-				{}, // 9
-				{}, // 9
-				{}, // 9
-				{}, // 9
-				{}, // 9
-				{}, // 9
-				{}, // 9
-				{}, // 9
-				{}, // 9
-				{}, // 9
-				{}, // 9
-				{}, // 9
-				{}, // 9
-				{}, // 9
-				{}, // 9
-				{}, // 9
-				{}, // 9
-				{}, // 9
-				{}, // 9
-				{}, // 9
-				{}, // 9
-				{}, // 9
-				{}, // 9
-				{}, // 9
-				{}, // 9
-				{}, // 9	
-		};
-		
-		return 0;
-	}
-	
 	public static int valueHand( ArrayList<Card> h )
 	{
 	   if ( isFlush(h) && isStraight(h) )
