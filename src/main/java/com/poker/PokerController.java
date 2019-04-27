@@ -118,8 +118,7 @@ public class PokerController {
         	agentHand = new ArrayList<Card>();
         	playerHand = new ArrayList<Card>();
         	board = new ArrayList<Card>();
-    		deck = new ArrayList<Card>();
-    		buildDeck();
+    		deck = buildDeck();
     		dealHandCards();
     		this.currentBet = 0;
         	this.pot = 0;
@@ -132,12 +131,14 @@ public class PokerController {
     		postBlinds();
     	}
     	
-    	public void buildDeck() {
+    	public static ArrayList<Card> buildDeck() {
+    		ArrayList<Card> temp = new ArrayList<Card>();
     		for(int i = 0; i < 4; i++) {
     			for(int j = 0; j < 13; j++) {
-    				deck.add(new Card(i, j));
+    				temp.add(new Card(i, j));
     			}
     		}
+    		return temp;
     	}
     	
     	public void dealBoardCard() {
