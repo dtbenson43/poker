@@ -41,6 +41,19 @@ rule "Pre-Flop; Agent Turn;"
         update( currentGame );
 end
 
+rule "Flop"
+    when
+        currentGame : Game( gameState == Game.FLOPDEAL, currentGameState : gameState )
+    then
+        currentGame.dealBoardCard();
+        currentGame.dealBoardCard();
+        currentGame.dealBoardCard();
+        currentGame.printBoardCards();
+        currentGame.setGameState(Game.FLOP);
+        update( currentGame );
+end
+
+
 rule "Flop; Player Turn;"
     when
         currentGame : Game( gameState == Game.FLOP && turn == Game.PLAYER, currentGameState : gameState )
@@ -59,6 +72,16 @@ rule "Flop; Agent Turn;"
         update( currentGame );
 end
 
+rule "Turn"
+    when
+        currentGame : Game( gameState == Game.TURNDEAL, currentGameState : gameState )
+    then
+        currentGame.dealBoardCard();
+        currentGame.printBoardCards();
+        currentGame.setGameState(Game.TURN);
+        update( currentGame );
+end
+
 rule "Turn; Player Turn;"
     when
         currentGame : Game( gameState == Game.TURN && turn == Game.PLAYER, currentGameState : gameState )
@@ -74,6 +97,16 @@ rule "Turn; Agent Turn;"
     then
         System.out.println( "Turn - Agent Turn" );
         currentGame.agentBet(currentGame.getCurrentBet());
+        update( currentGame );
+end
+
+rule "River"
+    when
+        currentGame : Game( gameState == Game.RIVERDEAL, currentGameState : gameState )
+    then
+        currentGame.dealBoardCard();
+        currentGame.printBoardCards();
+        currentGame.setGameState(Game.RIVER);
         update( currentGame );
 end
 
