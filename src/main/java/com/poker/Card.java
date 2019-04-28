@@ -3,6 +3,11 @@ package com.poker;
 public class Card {
 	private int suit;
 	private int rank;
+	
+	Card(Card clone) {
+		this.suit = clone.getSuit();
+		this.rank = clone.getRank();
+	}
 
 	Card(int suit, int rank) {
 		this.suit = suit;
@@ -10,7 +15,7 @@ public class Card {
 	}
 	
 	public int getSuit() {
-		return suit;
+		return suit; 
 	}
 
 	public void setSuit(int suit) {
@@ -25,11 +30,8 @@ public class Card {
 		this.rank = rank;
 	}
 	
-	public boolean equals(Card compCard) {
-		if(compCard.getRank() == this.getRank()
-		&& compCard.getSuit() == this.getRank()) {
-			return true;
-		}
-		return false;
+	public String toString() {
+		return this.suit + "" + this.rank;
+		
 	}
 }

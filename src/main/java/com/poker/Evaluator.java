@@ -15,6 +15,7 @@ Output of each method:
   An integer value represent the strength
   The higher the integer, the stronger the hand
 -------------------------------------------------------------- */
+
 public class Evaluator
 {
 	public static final int STRAIGHT_FLUSH = 8000000; 
@@ -33,9 +34,179 @@ public class Evaluator
 	                                          // + High2*14^4+ Low2*14^2 + card
 	public static final int ONE_PAIR       = 1000000;      
 	                                          // + high*14^2 + high2*14^1 + low
-	
-	
-	
+	public static final int[][] HOLE_CARDS = {
+			 // 1   2  s  o    1=first card; 2=second card; s=suited; o=off suit;
+			 { 12, 12, 0, 0 },
+			 { 11, 11, 0, 0 },
+			 { 10, 10, 0, 0 },
+			 { 12, 11, 1, 0 },
+			 {  9,  9, 0, 0 },
+			 { 12, 10, 1, 0 },
+			 { 11, 10, 1, 0 },
+			 { 12,  9, 1, 0 },
+			 { 11,  9, 1, 0 },
+			 {  8,  8, 0, 0 },
+			 { 12, 11, 0, 1 },
+			 { 12,  8, 1, 0 },
+			 { 10,  9, 1, 0 },
+			 { 11,  8, 1, 0 },
+			 { 10,  8, 1, 0 },
+			 {  9,  8, 1, 0 },
+			 {  7,  7, 0, 0 },
+			 { 12, 10, 0, 1 },
+			 { 12,  7, 1, 0 },
+			 { 11, 10, 0, 1 },
+			 {  6,  6, 0, 0 },
+			 { 11,  7, 1, 0 },
+			 {  8,  7, 1, 0 },
+			 { 12,  6, 1, 0 },
+			 { 10,  7, 1, 0 },
+			 {  9,  7, 1, 0 },
+			 { 12,  9, 0, 1 },
+			 { 12,  3, 1, 0 },
+			 {  5,  5, 0, 0 },
+			 { 12,  5, 1, 0 },
+			 { 11,  9, 0, 1 },
+			 { 12,  2, 1, 0 },
+			 { 12,  1, 1, 0 },
+			 { 12,  4, 1, 0 },
+			 { 10,  9, 0, 1 },
+			 {  4,  4, 0, 0 },
+			 { 11,  6, 1, 0 },
+			 {  8,  6, 1, 0 },
+			 { 12,  0, 1, 0 },
+			 {  7,  6, 1, 0 },
+			 {  9,  6, 1, 0 },
+			 { 12,  8, 0, 1 },
+			 { 10,  6, 1, 0 },
+			 { 11,  5, 1, 0 },
+			 { 11,  8, 0, 1 },
+			 {  3,  3, 0, 0 },
+			 {  9,  8, 0, 1 },
+			 {  6,  5, 1, 0 },
+			 { 10,  8, 0, 1 },
+			 {  2,  2, 0, 0 },
+			 {  1,  1, 0, 0 },
+			 {  0,  0, 0, 0 },
+			 { 11,  4, 1, 0 },
+			 {  7,  5, 1, 0 },
+			 { 11,  3, 1, 0 },
+			 {  5,  4, 1, 0 },
+			 {  8,  5, 1, 0 },
+			 { 11,  2, 1, 0 },
+			 { 11,  1, 1, 0 },
+			 { 11,  0, 1, 0 },
+			 { 10,  5, 1, 0 },
+			 {  6,  4, 1, 0 },
+			 {  4,  3, 1, 0 },
+			 {  9,  5, 1, 0 },
+			 {  3,  2, 1, 0 },
+			 { 10,  4, 1, 0 },
+			 {  5,  3, 1, 0 },
+			 {  7,  4, 1, 0 },
+			 { 10,  3, 1, 0 },
+			 {  4,  2, 1, 0 },
+			 { 10,  2, 1, 0 },
+			 { 10,  1, 1, 0 },
+			 {  8,  7, 0, 1 },
+			 {  8,  4, 1, 0 },
+			 { 10,  0, 1, 0 },
+			 { 12,  7, 0, 1 },
+			 {  3,  1, 1, 0 },
+			 {  6,  3, 1, 0 },
+			 {  9,  4, 1, 0 },
+			 {  9,  7, 0, 1 },
+			 { 11,  7, 0, 1 },
+			 {  9,  3, 1, 0 },
+			 { 10,  7, 0, 1 },
+			 {  2,  1, 1, 0 },
+			 {  5,  2, 1, 0 },
+			 {  9,  2, 1, 0 },
+			 {  9,  1, 1, 0 },
+			 {  7,  3, 1, 0 },
+			 {  9,  0, 1, 0 },
+			 {  4,  1, 1, 0 },
+			 { 12,  6, 0, 1 },
+			 {  3,  0, 1, 0 },
+			 {  8,  3, 1, 0 },
+			 {  6,  2, 1, 0 },
+			 {  8,  2, 1, 0 },
+			 {  8,  1, 1, 0 },
+			 {  2,  0, 1, 0 },
+			 {  8,  0, 1, 0 },
+			 {  7,  6, 0, 1 },
+			 {  8,  6, 0, 1 },
+			 { 12,  3, 0, 1 },
+			 { 12,  5, 0, 1 },
+			 {  5,  1, 1, 0 },
+			 { 12,  2, 0, 1 },
+			 {  1,  0, 1, 0 },
+			 {  7,  2, 1, 0 },
+			 {  7,  1, 1, 0 },
+			 {  9,  6, 0, 1 },
+			 { 12,  1, 0, 1 },
+			 {  4,  0, 1, 0 },
+			 {  7,  0, 1, 0 },
+			 { 11,  6, 0, 1 },
+			 { 12,  4, 0, 1 },
+			 {  6,  5, 0, 1 },
+			 { 10,  6, 0, 1 },
+			 {  6,  1, 1, 0 },
+			 { 12,  0, 0, 1 },
+			 {  6,  0, 1, 0 },
+			 {  7,  5, 0, 1 },
+			 {  5,  0, 1, 0 },
+			 {  5,  4, 0, 1 },
+			 { 11,  5, 0, 1 },
+			 {  4,  3, 0, 1 },
+			 {  8,  5, 0, 1 },
+			 { 11,  4, 0, 1 },
+			 {  6,  4, 0, 1 },
+			 {  3,  2, 0, 1 },
+			 { 11,  3, 0, 1 },
+			 {  9,  5, 0, 1 },
+			 {  5,  3, 0, 1 },
+			 { 10,  5, 0, 1 },
+			 { 11,  2, 0, 1 },
+			 { 11,  1, 0, 1 },
+			 { 7,   4, 0, 1 },
+			 { 11,  0, 0, 1 },
+			 { 4,   2, 0, 1 },
+			 { 10,  4, 0, 1 },
+			 {  3,  1, 0, 1 },
+			 {  6,  3, 0, 1 },
+			 {  8,  4, 0, 1 },
+			 { 10,  3, 0, 1 },
+			 {  2,  1, 0, 1 },
+			 { 10,  2, 0, 1 },
+			 { 10,  1, 0, 1 },
+			 {  5,  2, 0, 1 },
+			 { 10,  0, 0, 1 },
+			 {  9,  4, 0, 1 },
+			 {  4,  1, 0, 1 },
+			 {  9,  3, 0, 1 },
+			 {  7,  3, 0, 1 },
+			 {  3,  0, 0, 1 },
+			 {  9,  2, 0, 1 },
+			 {  9,  1, 0, 1 },
+			 {  2,  0, 0, 1 },
+			 {  9,  0, 0, 1 },
+			 {  6,  2, 0, 1 },
+			 {  8,  3, 0, 1 },
+			 {  8,  2, 0, 1 },
+			 {  1,  0, 0, 1 },
+			 {  8,  1, 0, 1 },
+			 {  5,  1, 0, 1 },
+			 {  8,  0, 0, 1 },
+			 {  4,  0, 0, 1 },
+			 {  7,  2, 0, 1 },
+			 {  7,  1, 0, 1 },
+			 {  7,  0, 0, 1 },
+			 {  6,  1, 0, 1 },
+			 {  6,  0 ,0, 1 },
+			 {  5,  0, 0, 1 }
+		};
+
 	/***********************************************************
 	  Methods used to determine a certain Poker hand
 	 ***********************************************************/
@@ -48,45 +219,146 @@ public class Evaluator
 		int ahead =  0;
 		int tied = 0;
 		int behind = 0;
+		int ourRank = (valueHand(bestHand(agentCards, boardCards)));
+		
+		ArrayList<Card> newDeck = PokerController.Game.buildDeck();
+		ArrayList<Card> tempDeck = new ArrayList<Card>(agentCards);
+		tempDeck.addAll(boardCards);
+		for(Card card : tempDeck) {
+			newDeck.remove(newDeck.indexOf(card));
+		}
+		
+		Iterator<int[]> twoCardCombos = org.apache.commons
+						.math3.util.CombinatoricsUtils.
+						combinationsIterator(tempDeck.size(), 2);
+		
+		while(twoCardCombos.hasNext()) {
+			int[] combinations = twoCardCombos.next();
+			ArrayList<Card> tempHand = new ArrayList<Card>();
+			for(int idx : combinations) {
+				tempHand.add(tempDeck.get(idx));
+			}
+			int oppRank = valueHand(bestHand(tempHand, boardCards));
+			if (ourRank > oppRank) ahead += 1;
+			else if (ourRank == oppRank) tied +=1;
+			else behind += 1;
+		}
+		
+		double handStrength = ((double)(ahead + tied) / (double)2)
+							/ (double)(ahead + tied + behind);
+		
+		return handStrength;
+	}
+	
+	public static double[] handPotential( ArrayList<Card> agentCards, ArrayList<Card> boardCards) {
+		int HP[][] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+		int HPTotal[] = {0, 0, 0};
+		
+		int ahead =  0;
+		int tied = 0;
+		int behind = 0;
+		
+		int aheadIdx = 0;
+		int tiedIdx = 1;
+		int behindIdx = 2;
 		
 		int ourRank = (valueHand(bestHand(agentCards, boardCards)));
 		
 		ArrayList<Card> newDeck = PokerController.Game.buildDeck();
-		newDeck.indexOf();
+		ArrayList<Card> tempDeck = new ArrayList<Card>(newDeck);
+		ArrayList<Card> usedCards = new ArrayList<Card>(agentCards); 
+		usedCards.addAll(boardCards);
 		
+		for(Card card : usedCards) {
+			tempDeck.remove(tempDeck.indexOf(card));
+		}
 		
-		return 0.0;
+		Iterator<int[]> twoCardCombos = org.apache.commons
+						.math3.util.CombinatoricsUtils.
+						combinationsIterator(tempDeck.size(), 2);
+		
+		while(twoCardCombos.hasNext()) {
+			int index = 0;
+			int[] combinations = twoCardCombos.next();
+			ArrayList<Card> tempHand = new ArrayList<Card>();
+			Card tempCard1 = tempDeck.get(combinations[0]);
+			Card tempCard2 = tempDeck.get(combinations[1]);
+			tempHand.add(tempCard1);
+			tempHand.add(tempCard2);
+			tempDeck.remove(tempDeck.indexOf(tempCard1));
+			tempDeck.remove(tempDeck.indexOf(tempCard2));
+
+			int oppRank = valueHand(bestHand(tempHand, boardCards));
+			if (ourRank > oppRank) {
+				index = aheadIdx;
+				ahead += 1;
+			}
+			else if (ourRank == oppRank) {
+				index = tiedIdx;
+				tied +=1;
+			}
+			else {
+				index = behindIdx;
+				behind += 1;
+			}
+			HPTotal[index] += 1;
+			
+			Iterator<int[]> potBoardCards = org.apache.commons
+					.math3.util.CombinatoricsUtils.
+					combinationsIterator(tempDeck.size(), 5 - boardCards.size());
+			
+			while(potBoardCards.hasNext()) {
+				ArrayList<Card> tempBoard = new ArrayList<Card>(boardCards);
+				int[] picks = potBoardCards.next();
+				for(int idx : picks) {
+					tempBoard.add(tempDeck.get(idx));
+				}
+				
+				int ourBest = valueHand(bestHand(agentCards, tempBoard));
+				int oppBest = valueHand(bestHand(agentCards, tempBoard));
+				if (ourBest > oppBest) HP[index][aheadIdx] += 1;
+				else if (ourBest == oppBest) HP[index][tiedIdx] += 1;
+				else HP[index][behindIdx] += 1;
+			}
+		}
+		
+		double handStrength = ((double)(ahead + tied) / (double)2)
+							/ (double)(ahead + tied + behind);
+		
+		double Ppot = ((double)HP[behindIdx][aheadIdx] 
+					+ ((double)HP[behindIdx][tiedIdx] / (double)2)
+					+ ((double)HP[tiedIdx][aheadIdx] / (double)2))
+					/ ((double)HPTotal[behindIdx] + (double)HPTotal[tiedIdx]);
+		
+		double Npot = ((double)HP[aheadIdx][behindIdx] 
+					+ ((double)HP[tiedIdx][behindIdx] / (double)2)
+					+ ((double)HP[aheadIdx][tiedIdx] / (double)2))
+					/ ((double)HPTotal[aheadIdx] + (double)HPTotal[tiedIdx]);
+		
+		double[] returnArray = { handStrength, Ppot, Npot };
+		
+		return returnArray;
 	}
 	
 	public static ArrayList<Card> bestHand( ArrayList<Card> agentCards, ArrayList<Card> boardCards ) {
 		ArrayList<Card> tempHand = new ArrayList<Card>(agentCards);
 		tempHand.addAll(boardCards);
-//		for(int i = 0; i < boardCards.size(); i++) {
-//			for(int j = i; j < boardCards.size(); j++) {
-//				
-//			}
-//		}
 		
 		Iterator<int[]> temp = org.apache.commons.math3.util.CombinatoricsUtils.combinationsIterator(tempHand.size(), tempHand.size() - 5);
 		
 		int bestScore = 0;
 		ArrayList<Card> bestHand = null;
-//		while(temp.hasNext()) {
-//			int[] combinations = temp.next();
-//			tempHand = new ArrayList<Card>;
-//			for(int idx : com)
-//		}
 		while(temp.hasNext()) {
 			ArrayList<Card> testHand = new ArrayList<Card>();
 			testHand.addAll(tempHand);
 			int[] combinations = temp.next();
-//			for(int idx: combinations) {
-//				testHand.remove(idx);
-//			}
+
 			for(int i = 0; i < combinations.length; i++) {
 				testHand.remove(combinations[i]-i);
 			}
+			
 			int newScore = valueHand(testHand);
+			
 			if( newScore > bestScore) {
 				bestHand = testHand;
 				bestScore = newScore;
@@ -103,181 +375,8 @@ public class Evaluator
 				h.get(0).getSuit() != h.get(1).getSuit() ? 1 : 0	
 		};
 		
-		int[][] holes = {
-				 //1  2  s  o
-				 { 12,12,0,0 },
-				 { 11,11,0,0 },
-				 { 10,10,0,0 },
-				 { 12,11,1,0 },
-				 { 9, 9, 0,0 },
-				 { 12,10,1,0 },
-				 { 11,10,1,0 },
-				 { 12,9, 1,0 },
-				 { 11,9, 1,0 },
-				 { 8, 8, 0,0 },
-				 { 12,11,0,1 },
-				 { 12, 8,1,0 },
-				 { 10, 9,1,0 },
-				 { 11, 8,1,0 },
-				 { 10, 8,1,0 },
-				 { 9, 8, 1,0 },
-				 { 7, 7, 0,0 },
-				 { 12,10,0,1 },
-				 { 12, 7,1,0 },
-				 { 11,10,0,1 },
-				 { 6, 6, 0,0 },
-				 { 11, 7,1,0 },
-				 { 8, 7, 1,0 },
-				 { 12, 6,1,0 },
-				 { 10, 7,1,0 },
-				 { 9, 7, 1,0 },
-				 { 12, 9,0,1 },
-				 { 12, 3,1,0 },
-				 { 5, 5, 0,0 },
-				 { 12, 5,1,0 },
-				 { 11, 9,0,1 },
-				 { 12, 2,1,0 },
-				 { 12, 1,1,0 },
-				 { 12, 4,1,0 },
-				 { 10, 9,0,1 },
-				 { 4, 4, 0,0 },
-				 { 11, 6,1,0 },
-				 { 8, 6, 1,0 },
-				 { 12, 0,1,0 },
-				 { 7, 6, 1,0 },
-				 { 9, 6, 1,0 },
-				 { 12, 8,0,1 },
-				 { 10, 6,1,0 },
-				 { 11, 5,1,0 },
-				 { 11, 8,0,1 },
-				 { 3, 3, 0,0 },
-				 { 9, 8, 0,1 },
-				 { 6, 5, 1,0 },
-				 { 10, 8,0,1 },
-				 { 2, 2, 0,0 },
-				 { 1, 1, 0,0 },
-				 { 0, 0, 0,0 },
-				 { 11, 4,1,0 },
-				 { 7, 5, 1,0 },
-				 { 11,3, 1,0 },
-				 { 5, 4, 1,0 },
-				 { 8, 5, 1,0 },
-				 { 11, 2,1,0 },
-				 { 11, 1,1,0 },
-				 { 11, 0,1,0 },
-				 { 10, 5,1,0 },
-				 { 6, 4, 1,0 },
-				 { 4, 3, 1,0 },
-				 { 9, 5, 1,0 },
-				 { 3,2,1,0 },
-				 { 10,4,1,0 },
-				 { 5,3,1,0 },
-				 { 7,4,1,0 },
-				 { 10,3,1,0 },
-				 { 4,2,1,0 },
-				 { 10,2,1,0 },
-				 { 10,1,1,0 },
-				 { 8,7,0,1 },
-				 { 8,4,1,0 },
-				 { 10,0,1,0 },
-				 { 12,7,0,1 },
-				 { 3,1,1,0 },
-				 { 6,3,1,0 },
-				 { 9,4,1,0 },
-				 { 9,7,0,1 },
-				 { 11,7,0,1 },
-				 { 9,3,1,0 },
-				 { 10,7,0,1 },
-				 { 2,1,1,0 },
-				 { 5,2,1,0 },
-				 { 9,2,1,0 },
-				 { 9,1,1,0 },
-				 { 7,3,1,0 },
-				 { 9,0,1,0 },
-				 { 4,1,1,0 },
-				 { 12,6,0,1 },
-				 { 3,0,1,0 },
-				 { 8,3,1,0 },
-				 { 6,2,1,0 },
-				 { 8,2,1,0 },
-				 { 8,1,1,0 },
-				 { 2,0,1,0 },
-				 { 8,0,1,0 },
-				 { 7,6,0,1 },
-				 { 8,6,0,1 },
-				 { 12,3,0,1 },
-				 { 12,5,0,1 },
-				 { 5,1,1,0 },
-				 { 12,2,0,1 },
-				 { 1,0,1,0 },
-				 { 7,2,1,0 },
-				 { 7,1,1,0 },
-				 { 9,6,0,1 },
-				 { 12,1,0,1 },
-				 { 4,0,1,0 },
-				 { 7,0,1,0 },
-				 { 11,6,0,1 },
-				 { 12,4,0,1 },
-				 { 6,5,0,1 },
-				 { 10,6,0,1 },
-				 { 6,1,1,0 },
-				 { 12,0,0,1 },
-				 { 6,0,1,0 },
-				 { 7,5,0,1 },
-				 { 5,0,1,0 },
-				 { 5,4,0,1 },
-				 { 11,5,0,1 },
-				 { 4,3,0,1 },
-				 { 8,5,0,1 },
-				 { 11,4,0,1 },
-				 { 6,4,0,1 },
-				 { 3,2,0,1 },
-				 { 11,3,0,1 },
-				 { 9,5,0,1 },
-				 { 5,3,0,1 },
-				 { 10,5,0,1 },
-				 { 11,2,0,1 },
-				 { 11,1,0,1 },
-				 { 7,4,0,1 },
-				 { 11,0,0,1 },
-				 { 4,2,0,1 },
-				 { 10,4,0,1 },
-				 { 3,1,0,1 },
-				 { 6,3,0,1 },
-				 { 8,4,0,1 },
-				 { 10,3,0,1 },
-				 { 2,1,0,1 },
-				 { 10,2,0,1 },
-				 { 10,1,0,1 },
-				 { 5,2,0,1 },
-				 { 10,0,0,1 },
-				 { 9,4,0,1 },
-				 { 4,1,0,1 },
-				 { 9,3,0,1 },
-				 { 7,3,0,1 },
-				 { 3,0,0,1 },
-				 { 9,2,0,1 },
-				 { 9,1,0,1 },
-				 { 2,0,0,1 },
-				 { 9,0,0,1 },
-				 { 6,2,0,1 },
-				 { 8,3,0,1 },
-				 { 8,2,0,1 },
-				 { 1,0,0,1 },
-				 { 8,1,0,1 },
-				 { 5,1,0,1 },
-				 { 8,0,0,1 },
-				 { 4,0,0,1 },
-				 { 7,2,0,1 },
-				 { 7,1,0,1 },
-				 { 7,0,0,1 },
-				 { 6,1,0,1 },
-				 { 6,0,0,1 },
-				 { 5,0,0,1 },
-		};
-		
 		int count = 0;
-		for(int[] hand : holes) {
+		for(int[] hand : HOLE_CARDS) {
 			if(handArray[0] == hand[0] && handArray[1] == hand[1]) {
 				if(hand[2] == 1 && handArray[2] == 1) {
 					return (double)(((double)169 - (double)count) / (double)169);
@@ -772,5 +871,4 @@ public class Evaluator
 	      h.set(min_j, help);
 	   }
 	}
-
 }
