@@ -57,28 +57,17 @@ public class Evaluator
 	public static ArrayList<Card> bestHand( ArrayList<Card> agentCards, ArrayList<Card> boardCards ) {
 		ArrayList<Card> tempHand = new ArrayList<Card>(agentCards);
 		tempHand.addAll(boardCards);
-//		for(int i = 0; i < boardCards.size(); i++) {
-//			for(int j = i; j < boardCards.size(); j++) {
-//				
-//			}
-//		}
 		
 		Iterator<int[]> temp = org.apache.commons.math3.util.CombinatoricsUtils.combinationsIterator(tempHand.size(), tempHand.size() - 5);
 		
 		int bestScore = 0;
 		ArrayList<Card> bestHand = null;
-//		while(temp.hasNext()) {
-//			int[] combinations = temp.next();
-//			tempHand = new ArrayList<Card>;
-//			for(int idx : com)
-//		}
+
 		while(temp.hasNext()) {
 			ArrayList<Card> testHand = new ArrayList<Card>();
 			testHand.addAll(tempHand);
 			int[] combinations = temp.next();
-//			for(int idx: combinations) {
-//				testHand.remove(idx);
-//			}
+
 			for(int i = 0; i < combinations.length; i++) {
 				testHand.remove(combinations[i]-i);
 			}

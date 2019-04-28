@@ -9,6 +9,7 @@ rule "New Game"
         System.out.println("New Game");
         currentGame.newGame();
         currentGame.setGameState( Game.NEW_HAND );
+        System.out.println("");
         update( currentGame );
 end
 
@@ -18,8 +19,14 @@ rule "New Hand"
     then
         System.out.println( "New Hand" );
         currentGame.newHand();
+        currentGame.setPrevBetOrCheck(false);
         currentGame.setCurrentBet(currentGame.getSmallBlind());
         currentGame.setGameState( Game.PREFLOP );
+        System.out.println("Player Chips = " + currentGame.getPlayerChips());
+        System.out.println("Agent Chips = " + currentGame.getAgentChips());
+        System.out.println("");
+        currentGame.printPlayerHand();
+        System.out.println("");
         update( currentGame );
 end
 
@@ -28,7 +35,10 @@ rule "Pre-Flop; Player Turn;"
         currentGame : Game( gameState == Game.PREFLOP && turn == Game.PLAYER && !getAgentAllIn() && !getPlayerAllIn(), currentGameState : gameState )
     then
         System.out.println( "Pre Flop - Player Turn" );
+        System.out.println("Player Chips = " + currentGame.getPlayerChips());
+        System.out.println("Agent Chips = " + currentGame.getAgentChips());
         currentGame.playerBet(currentGame.getCurrentBet());
+        System.out.println("");
         update( currentGame );
 end
 
@@ -38,6 +48,9 @@ rule "Pre-Flop; Agent Turn;"
     then
         System.out.println( "Pre Flop - Agent Turn" );
         currentGame.agentBet(currentGame.getCurrentBet());
+        System.out.println("Player Chips = " + currentGame.getPlayerChips());
+        System.out.println("Agent Chips = " + currentGame.getAgentChips());
+        System.out.println("");
         update( currentGame );
 end
 
@@ -45,11 +58,13 @@ rule "Flop"
     when
         currentGame : Game( gameState == Game.FLOPDEAL, currentGameState : gameState )
     then
+    	System.out.println("______________________________________________________________________");
         currentGame.dealBoardCard();
         currentGame.dealBoardCard();
         currentGame.dealBoardCard();
         currentGame.printBoardCards();
         currentGame.setGameState(Game.FLOP);
+        System.out.println("");
         update( currentGame );
 end
 
@@ -59,7 +74,11 @@ rule "Flop; Player Turn;"
         currentGame : Game( gameState == Game.FLOP && turn == Game.PLAYER && !getAgentAllIn() && !getPlayerAllIn(), currentGameState : gameState )
     then
         System.out.println( "Flop - Player Turn" );
+        System.out.println("Player Chips = " + currentGame.getPlayerChips());
+        System.out.println("Agent Chips = " + currentGame.getAgentChips());
+        System.out.println("");
         currentGame.playerBet(currentGame.getCurrentBet());
+        System.out.println("");
         update( currentGame );
 end
 
@@ -69,6 +88,9 @@ rule "Flop; Agent Turn;"
     then
         System.out.println( "Flop - Agent Turn" );
         currentGame.agentBet(currentGame.getCurrentBet());
+        System.out.println("Player Chips = " + currentGame.getPlayerChips());
+        System.out.println("Agent Chips = " + currentGame.getAgentChips());
+        System.out.println("");
         update( currentGame );
 end
 
@@ -76,9 +98,11 @@ rule "Turn"
     when
         currentGame : Game( gameState == Game.TURNDEAL, currentGameState : gameState )
     then
+    	System.out.println("______________________________________________________________________");
         currentGame.dealBoardCard();
         currentGame.printBoardCards();
         currentGame.setGameState(Game.TURN);
+        System.out.println("");
         update( currentGame );
 end
 
@@ -87,7 +111,11 @@ rule "Turn; Player Turn;"
         currentGame : Game( gameState == Game.TURN && turn == Game.PLAYER && !getAgentAllIn() && !getPlayerAllIn(), currentGameState : gameState )
     then
         System.out.println( "Turn - Player Turn" );
+        System.out.println("Player Chips = " + currentGame.getPlayerChips());
+        System.out.println("Agent Chips = " + currentGame.getAgentChips());
+        System.out.println("");
         currentGame.playerBet(currentGame.getCurrentBet());
+        System.out.println("");
         update( currentGame );
 end
 
@@ -97,6 +125,9 @@ rule "Turn; Agent Turn;"
     then
         System.out.println( "Turn - Agent Turn" );
         currentGame.agentBet(currentGame.getCurrentBet());
+        System.out.println("Player Chips = " + currentGame.getPlayerChips());
+        System.out.println("Agent Chips = " + currentGame.getAgentChips());
+        System.out.println("");
         update( currentGame );
 end
 
@@ -104,9 +135,11 @@ rule "River"
     when
         currentGame : Game( gameState == Game.RIVERDEAL, currentGameState : gameState )
     then
+    	System.out.println("______________________________________________________________________");
         currentGame.dealBoardCard();
         currentGame.printBoardCards();
         currentGame.setGameState(Game.RIVER);
+        System.out.println("");
         update( currentGame );
 end
 
@@ -115,8 +148,12 @@ rule "River; Player Turn;"
         currentGame : Game( gameState == Game.RIVER && turn == Game.PLAYER && !getAgentAllIn() && !getPlayerAllIn(), currentGameState : gameState )
     then
         System.out.println( "River - Player Turn" );
+        System.out.println("Player Chips = " + currentGame.getPlayerChips());
+        System.out.println("Agent Chips = " + currentGame.getAgentChips());
+        System.out.println("");
         currentGame.playerBet(currentGame.getCurrentBet());
         currentGame.printHand(Evaluator.bestHand(currentGame.getPlayerHand(), currentGame.getBoard()));
+        System.out.println("");
         update( currentGame );
 end
 
@@ -126,6 +163,9 @@ rule "River; Agent Turn;"
     then
         System.out.println( "River - Agent Turn" );
         currentGame.agentBet(currentGame.getCurrentBet());
+        System.out.println("Player Chips = " + currentGame.getPlayerChips());
+        System.out.println("Agent Chips = " + currentGame.getAgentChips());
+        System.out.println("");
         update( currentGame );
 end
 
@@ -138,6 +178,9 @@ rule "AllIn"
         }
         currentGame.printBoardCards();
         currentGame.setGameState(Game.SHOWDOWN);
+        System.out.println("Player Chips = " + currentGame.getPlayerChips());
+        System.out.println("Agent Chips = " + currentGame.getAgentChips());
+        System.out.println("");
         update( currentGame );
 end
 
@@ -145,9 +188,14 @@ rule "Showdown"
     when
         currentGame : Game( gameState == Game.SHOWDOWN, currentGameState : gameState )
     then
+    	System.out.println("######################################################################");
         System.out.println( "Showdown" );
-        currentGame.printAgentHand();
-        currentGame.printPlayerHand();
+        System.out.println("Player Hand:");
+        currentGame.printHand(Evaluator.bestHand(currentGame.getPlayerHand(), currentGame.getBoard()));
+        System.out.println("");
+        System.out.println("Agent Hand:");
+        currentGame.printHand(Evaluator.bestHand(currentGame.getAgentHand(), currentGame.getBoard()));
+        System.out.println("");
         if(Evaluator.valueHand(Evaluator.bestHand(currentGame.getPlayerHand(), currentGame.getBoard())) > Evaluator.valueHand(Evaluator.bestHand(currentGame.getAgentHand(), currentGame.getBoard()))){
         	currentGame.playerWin();
         }
@@ -158,5 +206,9 @@ rule "Showdown"
         	currentGame.agentWin();
         }
         currentGame.setGameState( Game.NEW_HAND );
+        System.out.println("Player Chips = " + currentGame.getPlayerChips());
+        System.out.println("Agent Chips = " + currentGame.getAgentChips());
+        System.out.println("######################################################################");
+        System.out.println("");
         update( currentGame );
 end
