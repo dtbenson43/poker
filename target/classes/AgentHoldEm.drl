@@ -38,6 +38,7 @@ rule "Pre-Flop; Agent Turn;"
     then
         System.out.println( "Pre Flop - Agent Turn" );
         currentGame.agentBet(currentGame.getCurrentBet());
+        currentGame.setAgentEvaluation(true);
         update( currentGame );
 end
 
@@ -159,4 +160,15 @@ rule "Showdown"
         }
         currentGame.setGameState( Game.NEW_HAND );
         update( currentGame );
+end
+
+rule "Agent Evaluation"
+	when 
+		currentGame : Game( agentEvaluation == true, currentAgentEvaluation : agentEvaluation )
+	then
+	
+	int wow = 2;
+	System.out.println(2);
+	currentGame.setAgentEvaluation(false);
+	update( currentGame );
 end

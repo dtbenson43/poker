@@ -37,7 +37,7 @@ rule "Pre-Flop; Agent Turn;"
         currentGame : Game( gameState == Game.PREFLOP && turn == Game.AGENT && !getAgentAllIn() && !getPlayerAllIn(), currentGameState : gameState )
     then
         System.out.println( "Pre Flop - Agent Turn" );
-        currentGame.agentBet(currentGame.getCurrentBet());
+        currentGame.setAgentEvaluation(true);
         update( currentGame );
 end
 
@@ -68,7 +68,7 @@ rule "Flop; Agent Turn;"
         currentGame : Game( gameState == Game.FLOP && turn == Game.AGENT && !getAgentAllIn() && !getPlayerAllIn(), currentGameState : gameState )
     then
         System.out.println( "Flop - Agent Turn" );
-        currentGame.agentBet(currentGame.getCurrentBet());
+        currentGame.setAgentEvaluation(true);
         update( currentGame );
 end
 
@@ -96,7 +96,7 @@ rule "Turn; Agent Turn;"
         currentGame : Game( gameState == Game.TURN && turn == Game.AGENT && !getAgentAllIn() && !getPlayerAllIn(), currentGameState : gameState )
     then
         System.out.println( "Turn - Agent Turn" );
-        currentGame.agentBet(currentGame.getCurrentBet());
+        currentGame.setAgentEvaluation(true);
         update( currentGame );
 end
 
@@ -125,7 +125,7 @@ rule "River; Agent Turn;"
         currentGame : Game( gameState == Game.RIVER && turn == Game.AGENT && !getAgentAllIn() && !getPlayerAllIn(), currentGameState : gameState )
     then
         System.out.println( "River - Agent Turn" );
-        currentGame.agentBet(currentGame.getCurrentBet());
+        currentGame.setAgentEvaluation(true);
         update( currentGame );
 end
 
@@ -159,4 +159,11 @@ rule "Showdown"
         }
         currentGame.setGameState( Game.NEW_HAND );
         update( currentGame );
+end
+
+rule "Agent Evaluation"
+	when 
+		currentGame : Game( agentEvaluation, currentAgentEvaluation : agentEvaluation )
+	then
+	
 end

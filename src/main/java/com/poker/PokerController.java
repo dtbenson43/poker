@@ -89,6 +89,13 @@ public class PokerController {
     	private int dealer;
     	private int turn;
     	
+    	private boolean agentEvaluation;
+    	
+    	private double currentHS;
+    	private double currentEHS;
+    	private double currentPPot;
+    	private double currentNPot;
+    	
 		private String[] suits = {"Hearts", "Diamonds", "Spades", "Clubs"}; 
     	private String[] ranks = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace"};
     	
@@ -110,9 +117,14 @@ public class PokerController {
         	this.smallBlind = Game.SMALL_BLIND;
         	this.bigBlind = Game.BIG_BLIND;
         	this.pot = 0;
+        	this.agentEvaluation = false;
+        	this.currentHS = 0;
+        	this.currentEHS = 0;
+        	this.currentPPot = 0;
+        	this.currentNPot = 0;
     	}
-    	
-    	public void newHand() {
+
+		public void newHand() {
         	agentHand = new ArrayList<Card>();
         	playerHand = new ArrayList<Card>();
         	board = new ArrayList<Card>();
@@ -376,6 +388,14 @@ public class PokerController {
     		pot = 0;
     	}
     	
+    	public void updateData() {
+    		this.currentHS = Evaluator.handStrength(this.agentHand, this.board);
+    		double[] temp = Evaluator.handPotential(this.agentHand, this.board);
+    		this.currentPPot = temp[1];
+    		this.currentNPot = temp[2];
+    		this.currentEHS = Evaluator.effectiveHandStrength(this.currentEHS, this.currentPPot);
+    	}
+    	
 		public int getGameState() {
 			return gameState;
 		}
@@ -506,6 +526,17 @@ public class PokerController {
 		
 		public int getBoardSize() {
 			return board.size();
+		}
+		
+    	public boolean isAgentEvaluation() {
+			return agentEvaluation;
+		}
+
+		public void setAgentEvaluation(boolean agentEvaluation) {
+			if(agentEvaluation == true) {
+				this.updateData();
+			}
+			this.agentEvaluation = agentEvaluation;
 		}
     }
 }
