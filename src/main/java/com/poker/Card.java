@@ -30,8 +30,15 @@ public class Card {
 		this.rank = rank;
 	}
 	
+	public boolean equals(Card comp) {
+		if (comp.getRank() == this.rank && comp.getSuit() == this.suit) {
+			return true;
+		}
+		return false;
+	}
+	
 	public String toString() {
-		return this.suit + "" + this.rank;
+		return this.suit + "0" + this.rank;
 		
 	}
 }

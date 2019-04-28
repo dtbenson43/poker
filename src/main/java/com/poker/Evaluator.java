@@ -212,8 +212,10 @@ public class Evaluator
 	 ***********************************************************/
 	
 	public static double handStrength( ArrayList<Card> agentCards, ArrayList<Card> boardCards) {
+		System.out.println("Checking handStrength");
 		if (boardCards.size() == 0) {
-			return valueHandPreFlop(agentCards);
+			double temp = valueHandPreFlop(agentCards);
+			return temp;
 		}
 		
 		int ahead =  0;
@@ -225,18 +227,18 @@ public class Evaluator
 		ArrayList<Card> tempDeck = new ArrayList<Card>(agentCards);
 		tempDeck.addAll(boardCards);
 		for(Card card : tempDeck) {
-			newDeck.remove(newDeck.indexOf(card));
+			newDeck.remove(PokerController.Game.indexOfCard(newDeck, card));
 		}
 		
 		Iterator<int[]> twoCardCombos = org.apache.commons
 						.math3.util.CombinatoricsUtils.
-						combinationsIterator(tempDeck.size(), 2);
+						combinationsIterator(newDeck.size(), 2);
 		
 		while(twoCardCombos.hasNext()) {
 			int[] combinations = twoCardCombos.next();
 			ArrayList<Card> tempHand = new ArrayList<Card>();
 			for(int idx : combinations) {
-				tempHand.add(tempDeck.get(idx));
+				tempHand.add(newDeck.get(idx));
 			}
 			int oppRank = valueHand(bestHand(tempHand, boardCards));
 			if (ourRank > oppRank) ahead += 1;
@@ -251,6 +253,7 @@ public class Evaluator
 	}
 	
 	public static double[] handPotential( ArrayList<Card> agentCards, ArrayList<Card> boardCards) {
+		System.out.println("Checking Potential");
 		int HP[][] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
 		int HPTotal[] = {0, 0, 0};
 		
@@ -270,7 +273,7 @@ public class Evaluator
 		usedCards.addAll(boardCards);
 		
 		for(Card card : usedCards) {
-			tempDeck.remove(tempDeck.indexOf(card));
+			tempDeck.remove(PokerController.Game.indexOfCard(tempDeck, card));
 		}
 		
 		Iterator<int[]> twoCardCombos = org.apache.commons
@@ -286,8 +289,8 @@ public class Evaluator
 			Card tempCard2 = tempBoardDeck.get(combinations[1]);
 			tempHand.add(tempCard1);
 			tempHand.add(tempCard2);
-			tempBoardDeck.remove(tempDeck.indexOf(tempCard1));
-			tempBoardDeck.remove(tempDeck.indexOf(tempCard2));
+			tempBoardDeck.remove(PokerController.Game.indexOfCard(tempBoardDeck, tempCard1));
+			tempBoardDeck.remove(PokerController.Game.indexOfCard(tempBoardDeck, tempCard2));
 
 			int oppRank = valueHand(bestHand(tempHand, boardCards));
 			if (ourRank > oppRank) {
@@ -306,7 +309,7 @@ public class Evaluator
 			
 			Iterator<int[]> potBoardCards = org.apache.commons
 					.math3.util.CombinatoricsUtils.
-					combinationsIterator(tempDeck.size(), 5 - boardCards.size());
+					combinationsIterator(tempBoardDeck.size(), 5 - boardCards.size());
 			
 			while(potBoardCards.hasNext()) {
 				ArrayList<Card> tempBoard = new ArrayList<Card>(boardCards);
@@ -380,6 +383,12 @@ public class Evaluator
 				h.get(0).getSuit() == h.get(1).getSuit() ? 1 : 0,
 				h.get(0).getSuit() != h.get(1).getSuit() ? 1 : 0	
 		};
+		
+		if (handArray[1] > handArray[0]) {
+			int help = handArray[0];
+			handArray[0] = handArray[1];
+			handArray[1] = help;
+		}
 		
 		int count = 0;
 		for(int[] hand : HOLE_CARDS) {
@@ -455,7 +464,7 @@ public class Evaluator
 	   ----------------------------------------------------- */
 	public static int valueStraight( ArrayList<Card> h )
 	{
-	   return STRAIGHT + valueHighCard(h);
+		return STRAIGHT + valueHighCard(h);
 	}
 	
 	/* ---------------------------------------------------------
