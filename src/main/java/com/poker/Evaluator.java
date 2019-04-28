@@ -280,13 +280,14 @@ public class Evaluator
 		while(twoCardCombos.hasNext()) {
 			int index = 0;
 			int[] combinations = twoCardCombos.next();
+			ArrayList<Card> tempBoardDeck = new ArrayList<Card>(tempDeck);
 			ArrayList<Card> tempHand = new ArrayList<Card>();
-			Card tempCard1 = tempDeck.get(combinations[0]);
-			Card tempCard2 = tempDeck.get(combinations[1]);
+			Card tempCard1 = tempBoardDeck.get(combinations[0]);
+			Card tempCard2 = tempBoardDeck.get(combinations[1]);
 			tempHand.add(tempCard1);
 			tempHand.add(tempCard2);
-			tempDeck.remove(tempDeck.indexOf(tempCard1));
-			tempDeck.remove(tempDeck.indexOf(tempCard2));
+			tempBoardDeck.remove(tempDeck.indexOf(tempCard1));
+			tempBoardDeck.remove(tempDeck.indexOf(tempCard2));
 
 			int oppRank = valueHand(bestHand(tempHand, boardCards));
 			if (ourRank > oppRank) {
@@ -311,7 +312,7 @@ public class Evaluator
 				ArrayList<Card> tempBoard = new ArrayList<Card>(boardCards);
 				int[] picks = potBoardCards.next();
 				for(int idx : picks) {
-					tempBoard.add(tempDeck.get(idx));
+					tempBoard.add(tempBoardDeck.get(idx));
 				}
 				
 				int ourBest = valueHand(bestHand(agentCards, tempBoard));
@@ -321,6 +322,7 @@ public class Evaluator
 				else HP[index][behindIdx] += 1;
 			}
 		}
+	
 		
 		double handStrength = ((double)(ahead + tied) / (double)2)
 							/ (double)(ahead + tied + behind);
@@ -338,6 +340,10 @@ public class Evaluator
 		double[] returnArray = { handStrength, Ppot, Npot };
 		
 		return returnArray;
+	}
+	
+	public static double effectiveHandStrength(double handStrength, double posPotential) {
+		return handStrength + ( 1 - handStrength ) * posPotential;
 	}
 	
 	public static ArrayList<Card> bestHand( ArrayList<Card> agentCards, ArrayList<Card> boardCards ) {
