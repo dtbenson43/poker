@@ -67,7 +67,7 @@ public class Evaluator
 //			}
 //		}
 		
-		Iterator<int[]> temp = org.apache.commons.math3.util.CombinatoricsUtils.combinationsIterator(tempHand.size() - 5, tempHand.size());
+		Iterator<int[]> temp = org.apache.commons.math3.util.CombinatoricsUtils.combinationsIterator(tempHand.size(), tempHand.size() - 5);
 		
 		int bestScore = 0;
 		ArrayList<Card> bestHand = null;

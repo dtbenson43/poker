@@ -11,8 +11,6 @@ import org.drools.builder.KnowledgeBuilderError;
 import org.drools.builder.KnowledgeBuilderErrors;
 import org.drools.builder.ResourceType;
 import org.drools.io.ResourceFactory;
-import org.drools.logger.KnowledgeRuntimeLogger;
-import org.drools.logger.KnowledgeRuntimeLoggerFactory;
 import org.drools.runtime.StatefulKnowledgeSession;
 
 /**
@@ -166,6 +164,14 @@ public class PokerController {
     	public void printPlayerHand() {
     		System.out.println("Your Cards:");
     		for(Card c: playerHand) {
+    			System.out.println(ranks[c.getRank()] + " of " + suits[c.getSuit()]);
+    		}
+    		System.out.println("");
+    	}
+    	
+    	public void printAgentHand() {
+    		System.out.println("Agent Cards:");
+    		for(Card c: agentHand) {
     			System.out.println(ranks[c.getRank()] + " of " + suits[c.getSuit()]);
     		}
     		System.out.println("");
@@ -346,7 +352,30 @@ public class PokerController {
     			}
     		}
     	}
+    	
+    	public void printHand(ArrayList<Card> hand) {
+    		System.out.println("PAY ATTENTION");
+    		for(Card c: hand) {
+    			System.out.println(ranks[c.getRank()] + " of " + suits[c.getSuit()]);
+    		}
+    	}
+    	
+    	public void agentWin() {
+    		agentChips += pot;
+    		pot = 0;
+    	}
+    	
+    	public void playerWin() {
+    		playerChips += pot;
+    		pot = 0;
+    	}
 
+    	public void splitPot() {
+    		playerChips += pot/2;
+    		agentChips += pot/2;
+    		pot = 0;
+    	}
+    	
 		public int getGameState() {
 			return gameState;
 		}
