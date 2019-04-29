@@ -212,7 +212,7 @@ public class Evaluator
 	 ***********************************************************/
 	
 	public static double handStrength( ArrayList<Card> agentCards, ArrayList<Card> boardCards) {
-		System.out.println("Checking handStrength");
+		System.out.println("Checking Hand Strength");
 		if (boardCards.size() == 0) {
 			double temp = valueHandPreFlop(agentCards);
 			return temp;
@@ -253,7 +253,6 @@ public class Evaluator
 	}
 	
 	public static double[] handPotential( ArrayList<Card> agentCards, ArrayList<Card> boardCards) {
-		System.out.println("Checking Potential");
 		int HP[][] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
 		int HPTotal[] = {0, 0, 0};
 		

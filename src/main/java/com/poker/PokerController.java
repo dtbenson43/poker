@@ -1,6 +1,5 @@
 package com.poker;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -62,6 +61,9 @@ public class PokerController {
     	public static final int RIVERDEAL = 7;
     	public static final int RIVER = 8;
     	public static final int SHOWDOWN = 9;
+    	public static final int END = 10;
+    	
+    	public boolean dataUpdated = false;
     	
     	public static final int SMALL_BLIND = 25;
     	public static final int BIG_BLIND = 50;
@@ -91,11 +93,14 @@ public class PokerController {
     	private int turn;
     		
 		private char[] suits = {(char)'\u2665', (char)'\u2666', (char)'\u2663', (char)'\u2660'}; 
-//		String suits = "\u2665 \u2666 \u2663 \u2660";
     	private String[] ranks = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"};
     	
     	private Scanner scnr = new Scanner(System.in);
-    	PrintWriter printWriter = new PrintWriter(System.out,true);
+		private boolean agentEvaluation;
+		private double currentHS;
+		private double currentEHS;
+		private double currentPPot;
+		private double currentNPot;
     	
     	public Game() {
     		this.turn = 0;
@@ -130,6 +135,7 @@ public class PokerController {
         	this.pot = 0;
     		dealer = dealer == PLAYER ? AGENT : PLAYER;
     		turn = dealer;
+    		dataUpdated = false;
     		agentChipsStartOfHand = agentChips;
     		playerChipsStartOfHand = playerChips;
     		setAgentAllIn(false);
@@ -218,54 +224,60 @@ public class PokerController {
     		}
     	}
     	
-    	public void agentBet(int chipsToCall) {
+    	public void agentBet(int chipsToBet, int chipsToCall) {
     		if(agentAllIn == true) {
     			return;
     		}
-    		if(chipsToCall >= agentChips) {
+    		if(chipsToBet + chipsToCall >= agentChips) {
     			agentGoAllIn();
+    			System.out.println("Agent went All-In");
     		} 
     		else {
-        		pot += chipsToCall;
-    			agentChips -= chipsToCall;
+    			System.out.println("Agent raises by " + chipsToBet + " chips");
+        		pot += chipsToBet + chipsToCall;
+    			agentChips -= chipsToBet + chipsToCall;
     			
-    			if (prevBetOrCheck) {
-    				gameState += 1;
-    				currentBet = 0;
-    				turn = dealer == PLAYER ? AGENT : PLAYER;
-    				prevBetOrCheck = false;
-    			} 
-    			else {
-    				currentBet = 0;
-    				prevBetOrCheck = true;
-    				turn = PLAYER;
-    			}
+    			currentBet = chipsToBet;
+    			prevBetOrCheck = true;
+    			turn = PLAYER;
     		}
 			return;
     	}
     	
-    	public void agentBet(int chipsToBet) {
-    		if(chipsToBet >= agentChips) {
+    	public void agentCall(int chipsToCall) {
+    		if(chipsToCall >= agentChips) {
     			agentGoAllIn();
+    			System.out.println("Agent went All-In");
     		} 
-    		else {
-        		pot += chipsToBet;
-    			agentChips -= chipsToBet;
-    			
-    			System.out.println("Agent Chips = " + agentChips);
-    			if (prevBetOrCheck) {
+			else {
+				if(chipsToCall !=0) {
+					System.out.println("Agent calls " + chipsToCall + " chips");
+				}	
+				else {
+					System.out.println("Agent checks");
+				}
+    			pot += chipsToCall;
+    			agentChips -= chipsToCall;
+    			currentBet = 0;
+    			turn = PLAYER;
+   
+    			if(isPrevBetOrCheck()) {
     				gameState += 1;
-    				currentBet = chipsToBet;
     				turn = dealer == PLAYER ? AGENT : PLAYER;
     				prevBetOrCheck = false;
-    			} 
-    			else {
-    				currentBet = chipsToBet;
-    				prevBetOrCheck = true;
-    				turn = PLAYER;
     			}
-    		}
-			return;
+    			else {
+    				setPrevBetOrCheck(true);
+    			}
+			}
+    	}
+    	
+    	public void agentFold() {
+    		System.out.println("Agent has folded");
+    		playerWin();
+    		setAgentEvaluation(false);
+    		gameState = NEW_HAND;
+  
     	}
     	
     	public void bettingRules(int choice, int chipsToCall) {
@@ -339,7 +351,15 @@ public class PokerController {
     		}
     		else {
     			currentBet = (playerChipsStartOfHand * 2) - pot;
-    			agentBet(currentBet);
+    			if(currentEHS > 0.90) {
+    				agentBet(0, currentBet);
+    			}
+    			else if(currentEHS == 0 && currentHS > 0.90) {
+    				agentBet(0, currentBet);
+    			}
+    			else {
+    				agentFold();
+    			}
     		}
     	}
     	
@@ -431,6 +451,7 @@ public class PokerController {
         		this.currentPPot = temp[1];
         		this.currentNPot = temp[2];
         		this.currentEHS = Evaluator.effectiveHandStrength(this.currentEHS, this.currentPPot);
+        		dataUpdated = true;
     		}
     	}
     	
@@ -572,7 +593,9 @@ public class PokerController {
 
 		public void setAgentEvaluation(boolean agentEvaluation) {
 			if(agentEvaluation == true) {
-				this.updateData();
+				if(!dataUpdated) {
+					this.updateData();
+				}
 			}
 			this.agentEvaluation = agentEvaluation;
 		}
@@ -607,6 +630,14 @@ public class PokerController {
 
 		public void setCurrentNPot(double currentNPot) {
 			this.currentNPot = currentNPot;
+		}
+
+		public boolean isDataUpdated() {
+			return dataUpdated;
+		}
+
+		public void setDataUpdated(boolean dataUpdated) {
+			this.dataUpdated = dataUpdated;
 		}
     }
 }

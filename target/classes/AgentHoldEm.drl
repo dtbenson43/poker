@@ -24,6 +24,7 @@ rule "New Hand"
         currentGame.setGameState( Game.PREFLOP );
         System.out.println("Player Chips = " + currentGame.getPlayerChips());
         System.out.println("Agent Chips = " + currentGame.getAgentChips());
+        System.out.println("Current Pot = " + currentGame.getPot());
         System.out.println("");
         currentGame.printPlayerHand();
         System.out.println("");
@@ -37,6 +38,7 @@ rule "Pre-Flop; Player Turn;"
         System.out.println( "Pre Flop - Player Turn" );
         System.out.println("Player Chips = " + currentGame.getPlayerChips());
         System.out.println("Agent Chips = " + currentGame.getAgentChips());
+        System.out.println("Current Pot = " + currentGame.getPot());
         currentGame.playerBet(currentGame.getCurrentBet());
         System.out.println("");
         update( currentGame );
@@ -47,9 +49,10 @@ rule "Pre-Flop; Agent Turn;"
         currentGame : Game( gameState == Game.PREFLOP && turn == Game.AGENT && !getAgentAllIn() && !getPlayerAllIn(), currentGameState : gameState )
     then
         System.out.println( "Pre Flop - Agent Turn" );
-        currentGame.agentBet(currentGame.getCurrentBet());
+        currentGame.setAgentEvaluation(true);
         System.out.println("Player Chips = " + currentGame.getPlayerChips());
         System.out.println("Agent Chips = " + currentGame.getAgentChips());
+        System.out.println("Current Pot = " + currentGame.getPot());
         System.out.println("");
         update( currentGame );
 end
@@ -64,6 +67,7 @@ rule "Flop"
         currentGame.dealBoardCard();
         currentGame.printBoardCards();
         currentGame.setGameState(Game.FLOP);
+        currentGame.setDataUpdated(false);
         System.out.println("");
         update( currentGame );
 end
@@ -76,6 +80,7 @@ rule "Flop; Player Turn;"
         System.out.println( "Flop - Player Turn" );
         System.out.println("Player Chips = " + currentGame.getPlayerChips());
         System.out.println("Agent Chips = " + currentGame.getAgentChips());
+        System.out.println("Current Pot = " + currentGame.getPot());
         System.out.println("");
         currentGame.playerBet(currentGame.getCurrentBet());
         System.out.println("");
@@ -87,9 +92,10 @@ rule "Flop; Agent Turn;"
         currentGame : Game( gameState == Game.FLOP && turn == Game.AGENT && !getAgentAllIn() && !getPlayerAllIn(), currentGameState : gameState )
     then
         System.out.println( "Flop - Agent Turn" );
-        currentGame.agentBet(currentGame.getCurrentBet());
+        currentGame.setAgentEvaluation(true);
         System.out.println("Player Chips = " + currentGame.getPlayerChips());
         System.out.println("Agent Chips = " + currentGame.getAgentChips());
+        System.out.println("Current Pot = " + currentGame.getPot());
         System.out.println("");
         update( currentGame );
 end
@@ -102,6 +108,7 @@ rule "Turn"
         currentGame.dealBoardCard();
         currentGame.printBoardCards();
         currentGame.setGameState(Game.TURN);
+        currentGame.setDataUpdated(false);
         System.out.println("");
         update( currentGame );
 end
@@ -113,6 +120,7 @@ rule "Turn; Player Turn;"
         System.out.println( "Turn - Player Turn" );
         System.out.println("Player Chips = " + currentGame.getPlayerChips());
         System.out.println("Agent Chips = " + currentGame.getAgentChips());
+        System.out.println("Current Pot = " + currentGame.getPot());
         System.out.println("");
         currentGame.playerBet(currentGame.getCurrentBet());
         System.out.println("");
@@ -124,9 +132,10 @@ rule "Turn; Agent Turn;"
         currentGame : Game( gameState == Game.TURN && turn == Game.AGENT && !getAgentAllIn() && !getPlayerAllIn(), currentGameState : gameState )
     then
         System.out.println( "Turn - Agent Turn" );
-        currentGame.agentBet(currentGame.getCurrentBet());
+        currentGame.setAgentEvaluation(true);
         System.out.println("Player Chips = " + currentGame.getPlayerChips());
         System.out.println("Agent Chips = " + currentGame.getAgentChips());
+        System.out.println("Current Pot = " + currentGame.getPot());
         System.out.println("");
         update( currentGame );
 end
@@ -139,6 +148,7 @@ rule "River"
         currentGame.dealBoardCard();
         currentGame.printBoardCards();
         currentGame.setGameState(Game.RIVER);
+        currentGame.setDataUpdated(false);
         System.out.println("");
         update( currentGame );
 end
@@ -150,6 +160,7 @@ rule "River; Player Turn;"
         System.out.println( "River - Player Turn" );
         System.out.println("Player Chips = " + currentGame.getPlayerChips());
         System.out.println("Agent Chips = " + currentGame.getAgentChips());
+        System.out.println("Current Pot = " + currentGame.getPot());
         System.out.println("");
         currentGame.playerBet(currentGame.getCurrentBet());
         currentGame.printHand(Evaluator.bestHand(currentGame.getPlayerHand(), currentGame.getBoard()));
@@ -162,9 +173,10 @@ rule "River; Agent Turn;"
         currentGame : Game( gameState == Game.RIVER && turn == Game.AGENT && !getAgentAllIn() && !getPlayerAllIn(), currentGameState : gameState )
     then
         System.out.println( "River - Agent Turn" );
-        currentGame.agentBet(currentGame.getCurrentBet());
+        currentGame.setAgentEvaluation(true);
         System.out.println("Player Chips = " + currentGame.getPlayerChips());
         System.out.println("Agent Chips = " + currentGame.getAgentChips());
+        System.out.println("Current Pot = " + currentGame.getPot());
         System.out.println("");
         update( currentGame );
 end
@@ -180,6 +192,7 @@ rule "AllIn"
         currentGame.setGameState(Game.SHOWDOWN);
         System.out.println("Player Chips = " + currentGame.getPlayerChips());
         System.out.println("Agent Chips = " + currentGame.getAgentChips());
+        System.out.println("Current Pot = " + currentGame.getPot());
         System.out.println("");
         update( currentGame );
 end
@@ -206,6 +219,9 @@ rule "Showdown"
         	currentGame.agentWin();
         }
         currentGame.setGameState( Game.NEW_HAND );
+        if(currentGame.getAgentChips() == 0 || currentGame.getPlayerChips() == 0){
+        	currentGame.setGameState( Game.END );
+        }
         System.out.println("Player Chips = " + currentGame.getPlayerChips());
         System.out.println("Agent Chips = " + currentGame.getAgentChips());
         System.out.println("######################################################################");
@@ -213,19 +229,35 @@ rule "Showdown"
         update( currentGame );
 end
 
-rule "Agent Evaluation"
-	when 
-		currentGame : Game( agentEvaluation, currentAgentEvaluation : agentEvaluation, ruleHS : currentHS, rulePPot: currentPPot  )
-	then
-	System.out.println(ruleHS);
-end
-
 rule "Agent Evaluation - PreFlop - HS > .50"
 	when 
 		currentGame : Game( agentEvaluation && gameState == Game.PREFLOP && currentHS > (.50), currentAgentEvaluation : agentEvaluation, ruleHS : currentHS, rulePPot: currentPPot  )
 	then
-		
-		currentGame.agentBet((currentGame.getPot() / 2) + currentGame.getCurrentBet());
+		currentGame.setAgentEvaluation(false);		
+		if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > 2 * currentGame.getCurrentHS()){
+			if(currentGame.getCurrentHS() > 0.90){
+				currentGame.agentCall(currentGame.getCurrentBet());
+			}
+			else{
+				currentGame.agentFold();
+			}
+		}
+		else if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > currentGame.getCurrentHS()){
+			if(currentGame.getCurrentHS() > 0.90){
+				currentGame.agentBet(currentGame.getCurrentBet(), currentGame.getCurrentBet());
+			}
+			else{
+				currentGame.agentFold();
+			}
+		}
+		else{
+			if(currentGame.getCurrentBet() > currentGame.getBigBlind()){
+				currentGame.agentBet(currentGame.getCurrentBet(), currentGame.getCurrentBet());
+			}
+			else{
+				currentGame.agentBet(currentGame.getBigBlind(), currentGame.getCurrentBet());
+			}
+		}
 		update( currentGame );
 end
 
@@ -233,68 +265,166 @@ rule "Agent Evaluation - PreFlop - HS <= .50"
 	when 
 		currentGame : Game( agentEvaluation && gameState == Game.PREFLOP && currentHS <= (.50), currentAgentEvaluation : agentEvaluation, ruleHS : currentHS, rulePPot: currentPPot  )
 	then
-		
-		currentGame.agentCall(currentGame.getCurrentBet());
+		if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > currentGame.getCurrentHS()){
+			currentGame.agentFold();
+		}
+		else{
+			currentGame.agentCall(currentGame.getCurrentBet());
+		}
 		currentGame.setAgentEvaluation(false);
 		update( currentGame );
 end
 
 rule "Agent Evaluation - Flop - HS > .50"
 	when 
-		currentGame : Game( agentEvaluation && gameState == Game.FLOP && currentHS > (.50), currentAgentEvaluation : agentEvaluation, ruleHS : currentHS, rulePPot: currentPPot  )
+		currentGame : Game( agentEvaluation && gameState == Game.FLOP && currentEHS > (.50), currentAgentEvaluation : agentEvaluation, ruleHS : currentHS, rulePPot: currentPPot  )
 	then
-		
-		currentGame.agentBet((currentGame.getPot() / 2) + currentGame.getCurrentBet());
-		currentGame.setAgentEvaluation(false);
+		currentGame.setAgentEvaluation(false);		
+		if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > 2 * currentGame.getCurrentEHS()){
+			if(currentGame.getCurrentEHS() > 0.90){
+				currentGame.agentCall(currentGame.getCurrentBet());
+			}
+			else{
+				currentGame.agentFold();
+			}
+		}
+		else if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > currentGame.getCurrentEHS()){
+			if(currentGame.getCurrentEHS() > 0.90){
+				currentGame.agentBet(currentGame.getCurrentBet(), currentGame.getCurrentBet());
+			}
+			else{
+				currentGame.agentFold();
+			}
+		}
+		else{
+			if(currentGame.getCurrentBet() > currentGame.getBigBlind()){
+				currentGame.agentBet(currentGame.getCurrentBet(), currentGame.getCurrentBet());
+			}
+			else{
+				currentGame.agentBet(currentGame.getBigBlind(), currentGame.getCurrentBet());
+			}
+		}
 		update( currentGame );
 end
 
 rule "Agent Evaluation - Flop - HS <= .50"
 	when 
-		currentGame : Game( agentEvaluation && gameState == Game.FLOP && currentHS <= (.50), currentAgentEvaluation : agentEvaluation, ruleHS : currentHS, rulePPot: currentPPot  )
+		currentGame : Game( agentEvaluation && gameState == Game.FLOP && currentEHS <= (.50), currentAgentEvaluation : agentEvaluation, ruleHS : currentHS, rulePPot: currentPPot  )
 	then
-		
-		currentGame.agentCall(currentGame.getCurrentBet());
+		if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > currentGame.getCurrentHS()){
+			currentGame.agentFold();
+		}
+		else{
+			currentGame.agentCall(currentGame.getCurrentBet());
+		}
 		currentGame.setAgentEvaluation(false);
 		update( currentGame );
 end
 
 rule "Agent Evaluation - Turn - HS > .50"
 	when 
-		currentGame : Game( agentEvaluation && gameState == Game.TURN && currentHS > (.50), currentAgentEvaluation : agentEvaluation, ruleHS : currentHS, rulePPot: currentPPot  )
+		currentGame : Game( agentEvaluation && gameState == Game.TURN && currentEHS > (.50), currentAgentEvaluation : agentEvaluation, ruleHS : currentHS, rulePPot: currentPPot  )
 	then
-		
-		currentGame.agentBet((currentGame.getPot() / 2) + currentGame.getCurrentBet());
-		currentGame.setAgentEvaluation(false);
+		currentGame.setAgentEvaluation(false);		
+		if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > 2 * currentGame.getCurrentEHS()){
+			if(currentGame.getCurrentEHS() > 0.90){
+				currentGame.agentCall(currentGame.getCurrentBet());
+			}
+			else{
+				currentGame.agentFold();
+			}
+		}
+		else if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > currentGame.getCurrentEHS()){
+			if(currentGame.getCurrentEHS() > 0.90){
+				currentGame.agentBet(currentGame.getCurrentBet(), currentGame.getCurrentBet());
+			}
+			else{
+				currentGame.agentFold();
+			}
+		}
+		else{
+			if(currentGame.getCurrentBet() > currentGame.getBigBlind()){
+				currentGame.agentBet(currentGame.getCurrentBet(), currentGame.getCurrentBet());
+			}
+			else{
+				currentGame.agentBet(currentGame.getBigBlind(), currentGame.getCurrentBet());
+			}
+		}
 		update( currentGame );
 end
 
 rule "Agent Evaluation - Turn - HS <= .50"
 	when 
-		currentGame : Game( agentEvaluation && gameState == Game.TURN && currentHS <= (.50), currentAgentEvaluation : agentEvaluation, ruleHS : currentHS, rulePPot: currentPPot  )
+		currentGame : Game( agentEvaluation && gameState == Game.TURN && currentEHS <= (.50), currentAgentEvaluation : agentEvaluation, ruleHS : currentHS, rulePPot: currentPPot  )
 	then
-		
-		currentGame.agentCall(currentGame.getCurrentBet());
+		if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > currentGame.getCurrentHS()){
+			currentGame.agentFold();
+		}
+		else{
+			currentGame.agentCall(currentGame.getCurrentBet());
+		}
 		currentGame.setAgentEvaluation(false);
 		update( currentGame );
 end
 
 rule "Agent Evaluation - River - HS > .50"
 	when 
-		currentGame : Game( agentEvaluation && gameState == Game.RIVER && currentHS > (.50), currentAgentEvaluation : agentEvaluation, ruleHS : currentHS, rulePPot: currentPPot  )
+		currentGame : Game( agentEvaluation && gameState == Game.RIVER && currentEHS > (.50), currentAgentEvaluation : agentEvaluation, ruleHS : currentHS, rulePPot: currentPPot  )
 	then
-		
-		currentGame.agentBet((currentGame.getPot() / 2) + currentGame.getCurrentBet());
-		currentGame.setAgentEvaluation(false);
+		currentGame.setAgentEvaluation(false);		
+		if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > 2 * currentGame.getCurrentEHS()){
+			if(currentGame.getCurrentEHS() > 0.90){
+				currentGame.agentCall(currentGame.getCurrentBet());
+			}
+			else{
+				currentGame.agentFold();
+			}
+		}
+		else if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > currentGame.getCurrentEHS()){
+			if(currentGame.getCurrentEHS() > 0.90){
+				currentGame.agentBet(currentGame.getCurrentBet(), currentGame.getCurrentBet());
+			}
+			else{
+				currentGame.agentFold();
+			}
+		}
+		else{
+			if(currentGame.getCurrentBet() > currentGame.getBigBlind()){
+				currentGame.agentBet(currentGame.getCurrentBet(), currentGame.getCurrentBet());
+			}
+			else{
+				currentGame.agentBet(currentGame.getBigBlind(), currentGame.getCurrentBet());
+			}
+		}
 		update( currentGame );
 end
 
 rule "Agent Evaluation - River - HS <= .50"
 	when 
-		currentGame : Game( agentEvaluation && gameState == Game.RIVER && currentHS <= (.50), currentAgentEvaluation : agentEvaluation, ruleHS : currentHS, rulePPot: currentPPot  )
+		currentGame : Game( agentEvaluation && gameState == Game.RIVER && currentEHS <= (.50), currentAgentEvaluation : agentEvaluation, ruleHS : currentHS, rulePPot: currentPPot  )
 	then
-		
-		currentGame.agentCall(currentGame.getCurrentBet());
+		if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > currentGame.getCurrentHS()){
+			currentGame.agentFold();
+		}
+		else{
+			currentGame.agentCall(currentGame.getCurrentBet());
+		}
 		currentGame.setAgentEvaluation(false);
 		update( currentGame );
 end
+
+rule "Game Over"
+	when 
+		currentGame : Game(gameState == Game.END, currentGameState : gameState )
+	then
+		if(currentGame.getAgentChips() == 0){
+			System.out.println("Congratulations!!! You have won the poker game!");
+		}
+		else{
+			System.out.println("Sorry, you have lost the poker game!");
+		}
+		currentGame.setGameState(Game.END);
+		System.exit(0); 
+		update( currentGame );
+end
+
