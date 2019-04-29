@@ -16,24 +16,62 @@ Output of each method:
   The higher the integer, the stronger the hand
 -------------------------------------------------------------- */
 
+/**
+ * Evaluator
+ * A class that evaluates the strength of a hand, as well as its potential to decrease or increase in strength
+ * 
+ * 
+ * @author Daniel Benson, and Allen Austen Riffee
+ * @version 1.0
+ * 
+ * CAP4601   Project #: 2
+ * File Name: Evaluator.java
+ */
 public class Evaluator
 {
+	/**
+	 * Final score for a straight flush hand
+	 */
 	public static final int STRAIGHT_FLUSH = 8000000; 
 	                                          // + valueHighCard()
+	/**
+	 * Final score for a four of a kind hand
+	 */
 	public static final int FOUR_OF_A_KIND = 7000000; 
 	                                          // + Quads Card Rank
+	/**
+	 * Final score for a full house hand
+	 */
 	public static final int FULL_HOUSE     = 6000000; 
 	                                          // + SET card rank
+	/**
+	 * Final score for a flush hand
+	 */
 	public static final int FLUSH          = 5000000;  
 	                                          // + valueHighCard()
+	/**
+	 * Final score for a straight hand
+	 */
 	public static final int STRAIGHT       = 4000000;   
 	                                          // + valueHighCard()
+	/**
+	 * Final score for a three of a kind hand
+	 */
 	public static final int SET            = 3000000;    
 	                                          // + Set card value
+	/**
+	 * Final score for a two pair hand
+	 */
 	public static final int TWO_PAIRS      = 2000000;     
 	                                          // + High2*14^4+ Low2*14^2 + card
+	/**
+	 * Final score for a one pair hand
+	 */
 	public static final int ONE_PAIR       = 1000000;      
 	                                          // + high*14^2 + high2*14^1 + low
+	/**
+	 * Array of starting hands, listed in order of strength, 
+	 */
 	public static final int[][] HOLE_CARDS = {
 			 // 1   2  s  o    1=first card; 2=second card; s=suited; o=off suit;
 			 { 12, 12, 0, 0 },
@@ -210,9 +248,15 @@ public class Evaluator
 	/***********************************************************
 	  Methods used to determine a certain Poker hand
 	 ***********************************************************/
-	
+	/**
+	 * Determines the hand strength of a hand given the hole cards and board cards
+	 * @param agentCards - hole cards of the agent
+	 * @param boardCards - board cards
+	 * @return - a double variable representing the hand strength from 0 to 1
+	 */
 	public static double handStrength( ArrayList<Card> agentCards, ArrayList<Card> boardCards) {
 		System.out.println("Checking Hand Strength");
+		// If preflop, check array
 		if (boardCards.size() == 0) {
 			double temp = valueHandPreFlop(agentCards);
 			return temp;
@@ -221,37 +265,55 @@ public class Evaluator
 		int ahead =  0;
 		int tied = 0;
 		int behind = 0;
+		// Checks the value of the best current agent hand
 		int ourRank = (valueHand(bestHand(agentCards, boardCards)));
 		
+		// Prepares decks to be used for calculations
 		ArrayList<Card> newDeck = PokerController.Game.buildDeck();
 		ArrayList<Card> tempDeck = new ArrayList<Card>(agentCards);
 		tempDeck.addAll(boardCards);
+		
+		// Removes used cards from the temporary deck
 		for(Card card : tempDeck) {
 			newDeck.remove(PokerController.Game.indexOfCard(newDeck, card));
 		}
 		
+		// Calculates possible player hands
 		Iterator<int[]> twoCardCombos = org.apache.commons
 						.math3.util.CombinatoricsUtils.
 						combinationsIterator(newDeck.size(), 2);
 		
+		// Evaluates how many times the agent wins, loses, or draws against every possible player hand
 		while(twoCardCombos.hasNext()) {
 			int[] combinations = twoCardCombos.next();
 			ArrayList<Card> tempHand = new ArrayList<Card>();
+			
+			// Creates possible player hand
 			for(int idx : combinations) {
 				tempHand.add(newDeck.get(idx));
 			}
+			
+			// Values possible player hand
 			int oppRank = valueHand(bestHand(tempHand, boardCards));
+			
 			if (ourRank > oppRank) ahead += 1;
 			else if (ourRank == oppRank) tied +=1;
 			else behind += 1;
 		}
 		
+		// Calculates Agent's hand strength
 		double handStrength = ((double)(ahead + tied) / (double)2)
 							/ (double)(ahead + tied + behind);
 		
 		return handStrength;
 	}
 	
+	/**
+	 * Calculates the potential of the agent's hand to increase or decrease in strength
+	 * @param agentCards - hole cards of the agent
+	 * @param boardCards - board cards
+	 * @return - a double array with the hand strength, the potential of the hand to increase in strength, and the potential of the hand to decrease in strength respectively.
+	 */
 	public static double[] handPotential( ArrayList<Card> agentCards, ArrayList<Card> boardCards) {
 		int HP[][] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
 		int HPTotal[] = {0, 0, 0};
@@ -264,26 +326,35 @@ public class Evaluator
 		int tiedIdx = 1;
 		int behindIdx = 2;
 		
+		// Values the agent hand
 		int ourRank = (valueHand(bestHand(agentCards, boardCards)));
 		
+		// Prepares decks to be used for calculations
 		ArrayList<Card> newDeck = PokerController.Game.buildDeck();
 		ArrayList<Card> tempDeck = new ArrayList<Card>(newDeck);
 		ArrayList<Card> usedCards = new ArrayList<Card>(agentCards); 
 		usedCards.addAll(boardCards);
 		
+		// Removes used cards from the temporary deck
 		for(Card card : usedCards) {
 			tempDeck.remove(PokerController.Game.indexOfCard(tempDeck, card));
 		}
 		
+		// Calculates possible player hands
 		Iterator<int[]> twoCardCombos = org.apache.commons
 						.math3.util.CombinatoricsUtils.
 						combinationsIterator(tempDeck.size(), 2);
 		
+		// Evaluates how many times the agent wins, loses, or draws against every possible player hand
 		while(twoCardCombos.hasNext()) {
 			int index = 0;
 			int[] combinations = twoCardCombos.next();
+			
+			
 			ArrayList<Card> tempBoardDeck = new ArrayList<Card>(tempDeck);
 			ArrayList<Card> tempHand = new ArrayList<Card>();
+			
+			// Creates player potential hand and removes from the temporary deck
 			Card tempCard1 = tempBoardDeck.get(combinations[0]);
 			Card tempCard2 = tempBoardDeck.get(combinations[1]);
 			tempHand.add(tempCard1);
@@ -291,7 +362,10 @@ public class Evaluator
 			tempBoardDeck.remove(PokerController.Game.indexOfCard(tempBoardDeck, tempCard1));
 			tempBoardDeck.remove(PokerController.Game.indexOfCard(tempBoardDeck, tempCard2));
 
+			// Values the potential player hand
 			int oppRank = valueHand(bestHand(tempHand, boardCards));
+			
+			
 			if (ourRank > oppRank) {
 				index = aheadIdx;
 				ahead += 1;
@@ -306,13 +380,16 @@ public class Evaluator
 			}
 			HPTotal[index] += 1;
 			
+			// Calculates possible turn and/or river card(s)
 			Iterator<int[]> potBoardCards = org.apache.commons
 					.math3.util.CombinatoricsUtils.
 					combinationsIterator(tempBoardDeck.size(), 5 - boardCards.size());
 			
+			// Evaluates possible agent hands given the possible board cards
 			while(potBoardCards.hasNext()) {
 				ArrayList<Card> tempBoard = new ArrayList<Card>(boardCards);
 				int[] picks = potBoardCards.next();
+				
 				for(int idx : picks) {
 					tempBoard.add(tempBoardDeck.get(idx));
 				}
@@ -325,48 +402,70 @@ public class Evaluator
 			}
 		}
 	
-		
+		// Calculates the hand strength of the agent
 		double handStrength = ((double)(ahead + tied) / (double)2)
 							/ (double)(ahead + tied + behind);
 		
+		// Calculates the potential of the agent's hand strength to increase
 		double Ppot = ((double)HP[behindIdx][aheadIdx] 
 					+ ((double)HP[behindIdx][tiedIdx] / (double)2)
 					+ ((double)HP[tiedIdx][aheadIdx] / (double)2))
 					/ ((double)HPTotal[behindIdx] + (double)HPTotal[tiedIdx]);
 		
+		// Calculates the potential of the agent's hand strength to decrease
 		double Npot = ((double)HP[aheadIdx][behindIdx] 
 					+ ((double)HP[tiedIdx][behindIdx] / (double)2)
 					+ ((double)HP[aheadIdx][tiedIdx] / (double)2))
 					/ ((double)HPTotal[aheadIdx] + (double)HPTotal[tiedIdx]);
 		
+		// Compiles the array representing the strengths
 		double[] returnArray = { handStrength, Ppot, Npot };
 		
 		return returnArray;
 	}
 	
-	public static double effectiveHandStrength(double handStrength, double posPotential) {
-		return handStrength + ( 1 - handStrength ) * posPotential;
+	/**
+	 * Calculates the effective hand strength, based on the hand strength and the potential for the hand to increase
+	 * @param handStrength - strength of the agent's hand
+	 * @param posPotential - potential of the agent's hand strength to increase
+	 * @param negPotential - potential of the agent's hand strength to decrease
+	 * @return - returns the effective hand strength of the agent's hand
+	 */
+	public static double effectiveHandStrength(double handStrength, double posPotential, double negPotential) {
+		return (handStrength * (1 - negPotential)) + (( 1 - handStrength ) * posPotential);
 	}
 	
+	/**
+	 * Returns the best hand that can be made from the agent's cards and the board cards
+	 * @param agentCards - the agent's cards
+	 * @param boardCards - the board cards
+	 * @return - the best hand that can be made from the agent's cards and the board cards
+	 */
 	public static ArrayList<Card> bestHand( ArrayList<Card> agentCards, ArrayList<Card> boardCards ) {
 		ArrayList<Card> tempHand = new ArrayList<Card>(agentCards);
 		tempHand.addAll(boardCards);
 		
+		// Generates all possible hands
 		Iterator<int[]> temp = org.apache.commons.math3.util.CombinatoricsUtils.combinationsIterator(tempHand.size(), tempHand.size() - 5);
 		
 		int bestScore = 0;
 		ArrayList<Card> bestHand = null;
+		
+		// Creates all possible hands
 		while(temp.hasNext()) {
 			ArrayList<Card> testHand = new ArrayList<Card>();
 			testHand.addAll(tempHand);
 			int[] combinations = temp.next();
-
+			
+			// Removes unused cards
 			for(int i = 0; i < combinations.length; i++) {
 				testHand.remove(combinations[i]-i);
 			}
 			
+			// Scores the hand
 			int newScore = valueHand(testHand);
 			
+			// Updates the best hand
 			if( newScore > bestScore) {
 				bestHand = testHand;
 				bestScore = newScore;
@@ -375,7 +474,13 @@ public class Evaluator
 		return bestHand;
 	}
 	
+	/**
+	 * Values the agent's cards preflop
+	 * @param h - agent's hole cards
+	 * @return - returns the value of the agent's hole cards
+	 */
 	public static double valueHandPreFlop( ArrayList<Card> h ) {
+		// Puts the agent's cards in a usable format
 		int handArray[] = { 
 				h.get(0).getRank(),
 				h.get(1).getRank(),
@@ -383,6 +488,7 @@ public class Evaluator
 				h.get(0).getSuit() != h.get(1).getSuit() ? 1 : 0	
 		};
 		
+		// Sorts agent's cards
 		if (handArray[1] > handArray[0]) {
 			int help = handArray[0];
 			handArray[0] = handArray[1];
@@ -390,6 +496,8 @@ public class Evaluator
 		}
 		
 		int count = 0;
+		
+		// Calculates the score of the agent's hole cards
 		for(int[] hand : HOLE_CARDS) {
 			if(handArray[0] == hand[0] && handArray[1] == hand[1]) {
 				if(hand[2] == 1 && handArray[2] == 1) {
@@ -413,6 +521,11 @@ public class Evaluator
 	/* --------------------------------------------------------
 	   valueHand(): return value of a hand
 	   -------------------------------------------------------- */
+	/**
+	 * Returns the value of a hand
+	 * @param h - hand of cards
+	 * @return - value of the hand
+	 */
 	public static int valueHand( ArrayList<Card> h )
 	{
 	   if ( isFlush(h) && isStraight(h) )
@@ -441,6 +554,11 @@ public class Evaluator
 	
 	         value = FLUSH + valueHighCard()
 	   ----------------------------------------------------- */
+	/**
+	 * Returns the value of a straight flush
+	 * @param h - hand of cards
+	 * @return - value of the hand
+	 */
 	public static int valueStraightFlush(ArrayList<Card> h )
 	{
 	   return STRAIGHT_FLUSH + valueHighCard(h);
@@ -451,6 +569,11 @@ public class Evaluator
 	
 	         value = FLUSH + valueHighCard()
 	   ----------------------------------------------------- */
+	/**
+	 * Returns the value of a flush
+	 * @param h - hand of cards
+	 * @return - value of the hand
+	 */
 	public static int valueFlush( ArrayList<Card> h )
 	{
 	   return FLUSH + valueHighCard(h);
@@ -461,6 +584,11 @@ public class Evaluator
 	
 	         value = STRAIGHT + valueHighCard()
 	   ----------------------------------------------------- */
+	/**
+	 * Returns the value of a straight
+	 * @param h - hand of cards
+	 * @return - value of the hand
+	 */
 	public static int valueStraight( ArrayList<Card> h )
 	{
 		return STRAIGHT + valueHighCard(h);
@@ -475,6 +603,11 @@ public class Evaluator
 	          the 4-of-a-kind hand
 		     There is ONLY ONE hand with a quads of a given rank.
 	   --------------------------------------------------------- */
+	/**
+	 * Returns the value of a four of a kind
+	 * @param h - hand of cards
+	 * @return - value of the hand
+	 */
 	public static int valueFourOfAKind( ArrayList<Card> h )
 	{
 	   sortByRank(h);
@@ -491,6 +624,11 @@ public class Evaluator
 	          the 3-of-a-kind in the full house hand
 		     There is ONLY ONE hand with a FH of a given set.
 	   ----------------------------------------------------------- */
+	/**
+	 * Returns the value of a full house
+	 * @param h - hand of cards
+	 * @return - value of the hand
+	 */
 	public static int valueFullHouse( ArrayList<Card> h )
 	{
 	   sortByRank(h);
@@ -506,6 +644,11 @@ public class Evaluator
 	   Trick: card h.get(2) is always a card that is part of the set hand
 		     There is ONLY ONE hand with a set of a given rank.
 	   --------------------------------------------------------------- */
+	/**
+	 * Returns the value of a three of a kind
+	 * @param h - hand of cards
+	 * @return - value of the hand
+	 */
 	public static int valueSet( ArrayList<Card> h )
 	{
 	   sortByRank(h);
@@ -521,6 +664,11 @@ public class Evaluator
 	                + 14*LowPairCard
 	                + UnmatchedCard
 	   ----------------------------------------------------- */
+	/**
+	 * Returns the value of two pairs
+	 * @param h - hand of cards
+	 * @return - value of the hand
+	 */
 	public static int valueTwoPairs( ArrayList<Card> h )
 	{
 	   int val = 0;
@@ -548,6 +696,11 @@ public class Evaluator
 	                + 14*MiddleCard
 	                + LowestCard
 	   ----------------------------------------------------- */
+	/**
+	 * Returns the value of a pair
+	 * @param h - hand of cards
+	 * @return - value of the hand
+	 */
 	public static int valueOnePair( ArrayList<Card> h )
 	{
 	   int val = 0;
@@ -579,6 +732,11 @@ public class Evaluator
 	                + 14^1*4thHighestCard
 	                + LowestCard
 	   ----------------------------------------------------- */
+	/**
+	 * Returns the value of a high card hand
+	 * @param h - hand of cards
+	 * @return - value of the hand
+	 */
 	public static int valueHighCard( ArrayList<Card> h )
 	{
 	   int val;
@@ -601,6 +759,11 @@ public class Evaluator
 	   is4s(): true if h has 4 of a kind
 	           false otherwise
 	   --------------------------------------------- */
+	/**
+	 * Checks for 4 of a kind
+	 * @param h - hand of cards
+	 * @return - true if 4 of a kind, false otherwise
+	 */
 	public static boolean is4s( ArrayList<Card> h )
 	{
 	   boolean a1, a2;
@@ -626,6 +789,11 @@ public class Evaluator
 	   isFullHouse(): true if h has Full House
 	                  false otherwise
 	   ---------------------------------------------------- */
+	/**
+	 * Checks for a full house
+	 * @param h - hand of cards
+	 * @return - true if full house, false otherwise
+	 */
 	public static boolean isFullHouse( ArrayList<Card> h )
 	{
 	   boolean a1, a2;
@@ -655,6 +823,11 @@ public class Evaluator
 	   **** Note: use is3s() ONLY if you know the hand
 	              does not have 4 of a kind 
 	   ---------------------------------------------------- */
+	/**
+	 * Checks for three of a kind
+	 * @param h - hand of cards
+	 * @return - true if three of a kind, false otherwise
+	 */
 	public static boolean is3s( ArrayList<Card> h )
 	{
 	   boolean a1, a2, a3;
@@ -689,6 +862,11 @@ public class Evaluator
 	   **** Note: use is22s() ONLY if you know the hand
 	              does not have 3 of a kind or better
 	   ----------------------------------------------------- */
+	/**
+	 * Checks for two pair
+	 * @param h - hand of cards
+	 * @return - true if two pair, false otherwise
+	 */
 	public static boolean is22s( ArrayList<Card> h )
 	{
 	   boolean a1, a2, a3;
@@ -721,6 +899,11 @@ public class Evaluator
 	   **** Note: use is22s() ONLY if you know the hand
 	              does not have 2 pairs or better
 	   ----------------------------------------------------- */
+	/**
+	 * Checks for pair
+	 * @param h - hand of cards
+	 * @return - true if pair, false otherwise
+	 */
 	public static boolean is2s( ArrayList<Card> h )
 	{
 	   boolean a1, a2, a3, a4;
@@ -746,6 +929,11 @@ public class Evaluator
 	   isFlush(): true if h has a flush
 	              false otherwise
 	   --------------------------------------------- */
+	/**
+	 * Checks for flush
+	 * @param h - hand of cards
+	 * @return - true if flush, false otherwise
+	 */
 	public static boolean isFlush( ArrayList<Card> h )
 	{
 	   if ( h.size() != 5 )
@@ -761,6 +949,11 @@ public class Evaluator
 	   isStraight(): true if h is a Straight
 	                 false otherwise
 	   --------------------------------------------- */
+	/**
+	 * Checks for straight
+	 * @param h - hand of cards
+	 * @return - true if straight, false otherwise
+	 */
 	public static boolean isStraight( ArrayList<Card> h )
 	{
 	   int i, testRank;
@@ -815,6 +1008,10 @@ public class Evaluator
 	
 	   (Finding a straight is eaiser that way)
 	   --------------------------------------------- */
+	/**
+	 * Sorts cards by rank
+	 * @param h - hand of cards
+	 */
 	public static void sortByRank( ArrayList<Card> h )
 	{
 	   int i, j, min_j;
@@ -854,6 +1051,10 @@ public class Evaluator
 	
 	   (Finding a flush is eaiser that way)
 	   --------------------------------------------- */
+	/**
+	 * Sorts cards by suit
+	 * @param h - hand of cards
+	 */
 	public static void sortBySuit( ArrayList<Card> h )
 	{
 	   int i, j, min_j;

@@ -1,10 +1,11 @@
 package com.poker
  
 import com.poker.PokerController.Game;
- 
-rule "New Game"
+
+
+rule "New Game"  //Rule that sets up a new game
     when
-        currentGame : Game( gameState == Game.NEW_GAME, currentGameState : gameState )
+        currentGame : Game( gameState == Game.NEW_GAME, currentGameState : gameState ) //When new game state, set up new game
     then
         System.out.println("New Game");
         currentGame.newGame();
@@ -13,51 +14,61 @@ rule "New Game"
         update( currentGame );
 end
 
-rule "New Hand"
+rule "New Hand" //Rule that sets up a new game
     when
-        currentGame : Game( gameState == Game.NEW_HAND, currentGameState : gameState )
+        currentGame : Game( gameState == Game.NEW_HAND, currentGameState : gameState ) //When new game state, set up new hand
     then
         System.out.println( "New Hand" );
         currentGame.newHand();
+        
         currentGame.setPrevBetOrCheck(false);
         currentGame.setCurrentBet(currentGame.getSmallBlind());
         currentGame.setGameState( Game.PREFLOP );
+        
         System.out.println("Player Chips = " + currentGame.getPlayerChips());
         System.out.println("Agent Chips = " + currentGame.getAgentChips());
         System.out.println("Current Pot = " + currentGame.getPot());
         System.out.println("");
         currentGame.printPlayerHand();
         System.out.println("");
+        
         update( currentGame );
 end
 
-rule "Pre-Flop; Player Turn;"
+rule "Pre-Flop; Player Turn;" //Allows player to see information and bet when it is their turn preflop
     when
-        currentGame : Game( gameState == Game.PREFLOP && turn == Game.PLAYER && !getAgentAllIn() && !getPlayerAllIn(), currentGameState : gameState )
+        currentGame : Game( gameState == Game.PREFLOP && turn == Game.PLAYER && !getAgentAllIn() && !getPlayerAllIn(), currentGameState : gameState ) // When no player is all in and its players turn and its preflop, fire rule
     then
+    	// Print info
         System.out.println( "Pre Flop - Player Turn" );
         System.out.println("Player Chips = " + currentGame.getPlayerChips());
         System.out.println("Agent Chips = " + currentGame.getAgentChips());
         System.out.println("Current Pot = " + currentGame.getPot());
+        
+        // Get player's bet
         currentGame.playerBet(currentGame.getCurrentBet());
         System.out.println("");
         update( currentGame );
 end
 
-rule "Pre-Flop; Agent Turn;"
+rule "Pre-Flop; Agent Turn;" //Allows agent to bet when it is their turn preflop
     when
-        currentGame : Game( gameState == Game.PREFLOP && turn == Game.AGENT && !getAgentAllIn() && !getPlayerAllIn(), currentGameState : gameState )
+        currentGame : Game( gameState == Game.PREFLOP && turn == Game.AGENT && !getAgentAllIn() && !getPlayerAllIn(), currentGameState : gameState ) //When no player is all in and its agent's turn and its preflop, fire rule
     then
         System.out.println( "Pre Flop - Agent Turn" );
+        // Set eval to true, where agent bets
         currentGame.setAgentEvaluation(true);
+        
+        //Print info
         System.out.println("Player Chips = " + currentGame.getPlayerChips());
         System.out.println("Agent Chips = " + currentGame.getAgentChips());
         System.out.println("Current Pot = " + currentGame.getPot());
         System.out.println("");
+        
         update( currentGame );
 end
 
-rule "Flop"
+rule "Flop" // Deals flop cards when the game state dictates
     when
         currentGame : Game( gameState == Game.FLOPDEAL, currentGameState : gameState )
     then
@@ -66,22 +77,27 @@ rule "Flop"
         currentGame.dealBoardCard();
         currentGame.dealBoardCard();
         currentGame.printBoardCards();
+        
         currentGame.setGameState(Game.FLOP);
         currentGame.setDataUpdated(false);
+        
         System.out.println("");
         update( currentGame );
 end
 
 
-rule "Flop; Player Turn;"
+rule "Flop; Player Turn;" //Allows player to see information and bet when it is their turn flop
     when
-        currentGame : Game( gameState == Game.FLOP && turn == Game.PLAYER && !getAgentAllIn() && !getPlayerAllIn(), currentGameState : gameState )
+        currentGame : Game( gameState == Game.FLOP && turn == Game.PLAYER && !getAgentAllIn() && !getPlayerAllIn(), currentGameState : gameState ) // When no player is all in and its players turn and its flop, fire rule
     then
+    	// Print info
         System.out.println( "Flop - Player Turn" );
         System.out.println("Player Chips = " + currentGame.getPlayerChips());
         System.out.println("Agent Chips = " + currentGame.getAgentChips());
         System.out.println("Current Pot = " + currentGame.getPot());
         System.out.println("");
+        
+        // Get's player's bet
         currentGame.playerBet(currentGame.getCurrentBet());
         System.out.println("");
         update( currentGame );
@@ -93,10 +109,12 @@ rule "Flop; Agent Turn;"
     then
         System.out.println( "Flop - Agent Turn" );
         currentGame.setAgentEvaluation(true);
+        
         System.out.println("Player Chips = " + currentGame.getPlayerChips());
         System.out.println("Agent Chips = " + currentGame.getAgentChips());
         System.out.println("Current Pot = " + currentGame.getPot());
         System.out.println("");
+        
         update( currentGame );
 end
 
@@ -107,8 +125,10 @@ rule "Turn"
     	System.out.println("______________________________________________________________________");
         currentGame.dealBoardCard();
         currentGame.printBoardCards();
+        
         currentGame.setGameState(Game.TURN);
         currentGame.setDataUpdated(false);
+        
         System.out.println("");
         update( currentGame );
 end
@@ -122,6 +142,7 @@ rule "Turn; Player Turn;"
         System.out.println("Agent Chips = " + currentGame.getAgentChips());
         System.out.println("Current Pot = " + currentGame.getPot());
         System.out.println("");
+        
         currentGame.playerBet(currentGame.getCurrentBet());
         System.out.println("");
         update( currentGame );
@@ -133,10 +154,12 @@ rule "Turn; Agent Turn;"
     then
         System.out.println( "Turn - Agent Turn" );
         currentGame.setAgentEvaluation(true);
+        
         System.out.println("Player Chips = " + currentGame.getPlayerChips());
         System.out.println("Agent Chips = " + currentGame.getAgentChips());
         System.out.println("Current Pot = " + currentGame.getPot());
         System.out.println("");
+        
         update( currentGame );
 end
 
@@ -147,8 +170,10 @@ rule "River"
     	System.out.println("______________________________________________________________________");
         currentGame.dealBoardCard();
         currentGame.printBoardCards();
+        
         currentGame.setGameState(Game.RIVER);
         currentGame.setDataUpdated(false);
+        
         System.out.println("");
         update( currentGame );
 end
@@ -162,8 +187,11 @@ rule "River; Player Turn;"
         System.out.println("Agent Chips = " + currentGame.getAgentChips());
         System.out.println("Current Pot = " + currentGame.getPot());
         System.out.println("");
+        
         currentGame.playerBet(currentGame.getCurrentBet());
+        // Prints player's best hand
         currentGame.printHand(Evaluator.bestHand(currentGame.getPlayerHand(), currentGame.getBoard()));
+        
         System.out.println("");
         update( currentGame );
 end
@@ -181,15 +209,18 @@ rule "River; Agent Turn;"
         update( currentGame );
 end
 
-rule "AllIn"
+rule "AllIn" // If either player is all in,
     when
         currentGame : Game( getAgentAllIn() || getPlayerAllIn(), currentGameState : gameState )
     then
-    	for(int i = 5 - currentGame.getBoardSize(); i > 0; i--){
+    	for(int i = 5 - currentGame.getBoardSize(); i > 0; i--){ // Deals remaining board cards
         	currentGame.dealBoardCard();
         }
+        
         currentGame.printBoardCards();
+        
         currentGame.setGameState(Game.SHOWDOWN);
+        
         System.out.println("Player Chips = " + currentGame.getPlayerChips());
         System.out.println("Agent Chips = " + currentGame.getAgentChips());
         System.out.println("Current Pot = " + currentGame.getPot());
@@ -203,217 +234,243 @@ rule "Showdown"
     then
     	System.out.println("######################################################################");
         System.out.println( "Showdown" );
+        
+        //Prints player's best hand
         System.out.println("Player Hand:");
         currentGame.printHand(Evaluator.bestHand(currentGame.getPlayerHand(), currentGame.getBoard()));
         System.out.println("");
+        
+        //Prints Agent's best hand
         System.out.println("Agent Hand:");
         currentGame.printHand(Evaluator.bestHand(currentGame.getAgentHand(), currentGame.getBoard()));
         System.out.println("");
+        
+        // If player wins, give player the pot
         if(Evaluator.valueHand(Evaluator.bestHand(currentGame.getPlayerHand(), currentGame.getBoard())) > Evaluator.valueHand(Evaluator.bestHand(currentGame.getAgentHand(), currentGame.getBoard()))){
         	currentGame.playerWin();
         }
+        // If neither win, split pot
         else if(Evaluator.valueHand(Evaluator.bestHand(currentGame.getPlayerHand(), currentGame.getBoard())) == Evaluator.valueHand(Evaluator.bestHand(currentGame.getAgentHand(), currentGame.getBoard()))){
         	currentGame.splitPot();
         }
+        // If agent wins, give agent the pot
         else{
         	currentGame.agentWin();
         }
+        
         currentGame.setGameState( Game.NEW_HAND );
+        
+        // If either player runs out of chips, end game
         if(currentGame.getAgentChips() == 0 || currentGame.getPlayerChips() == 0){
         	currentGame.setGameState( Game.END );
         }
+        
+        // Print info
         System.out.println("Player Chips = " + currentGame.getPlayerChips());
         System.out.println("Agent Chips = " + currentGame.getAgentChips());
         System.out.println("######################################################################");
         System.out.println("");
+        
         update( currentGame );
 end
 
-rule "Agent Evaluation - PreFlop - HS > .50"
+rule "Agent Evaluation - PreFlop - HS > .50" // eval for agent with strong preflop hand
 	when 
 		currentGame : Game( agentEvaluation && gameState == Game.PREFLOP && currentHS > (.50), currentAgentEvaluation : agentEvaluation, ruleHS : currentHS, rulePPot: currentPPot  )
 	then
-		currentGame.setAgentEvaluation(false);		
-		if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > 2 * currentGame.getCurrentHS()){
-			if(currentGame.getCurrentHS() > 0.90){
+		currentGame.setAgentEvaluation(false);	
+			
+		if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > 2 * currentGame.getCurrentHS()){ // If player bets a lot
+			if(currentGame.getCurrentHS() > 0.90){ // very strong hand, call
 				currentGame.agentCall(currentGame.getCurrentBet());
 			}
-			else{
+			else{ // not strong enough, fold
 				currentGame.agentFold();
 			}
 		}
-		else if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > currentGame.getCurrentHS()){
-			if(currentGame.getCurrentHS() > 0.90){
+		else if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > currentGame.getCurrentHS()){ // If player bets a good bit
+			if(currentGame.getCurrentHS() > 0.90){ // very strong hand, reraise
 				currentGame.agentBet(currentGame.getCurrentBet(), currentGame.getCurrentBet());
 			}
-			else{
+			else{ // not strong enough, fold
 				currentGame.agentFold();
 			}
 		}
-		else{
-			if(currentGame.getCurrentBet() > currentGame.getBigBlind()){
+		else{ // If player has not bet a lot
+			if(currentGame.getCurrentBet() > currentGame.getBigBlind()){ // reraise if player has bet
 				currentGame.agentBet(currentGame.getCurrentBet(), currentGame.getCurrentBet());
 			}
-			else{
+			else{ // bet if player has not
 				currentGame.agentBet(currentGame.getBigBlind(), currentGame.getCurrentBet());
 			}
 		}
+		
 		update( currentGame );
 end
 
-rule "Agent Evaluation - PreFlop - HS <= .50"
+rule "Agent Evaluation - PreFlop - HS <= .50" // eval for agent with weak hand on preflop
 	when 
 		currentGame : Game( agentEvaluation && gameState == Game.PREFLOP && currentHS <= (.50), currentAgentEvaluation : agentEvaluation, ruleHS : currentHS, rulePPot: currentPPot  )
 	then
-		if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > currentGame.getCurrentHS()){
+		if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > currentGame.getCurrentHS()){ // if player has bet more than profitable, fold
 			currentGame.agentFold();
 		}
-		else{
+		else{ // Else call or check
 			currentGame.agentCall(currentGame.getCurrentBet());
 		}
+		
 		currentGame.setAgentEvaluation(false);
 		update( currentGame );
 end
 
-rule "Agent Evaluation - Flop - HS > .50"
+rule "Agent Evaluation - Flop - HS > .50" // eval for agent with strong hand on flop
 	when 
 		currentGame : Game( agentEvaluation && gameState == Game.FLOP && currentEHS > (.50), currentAgentEvaluation : agentEvaluation, ruleHS : currentHS, rulePPot: currentPPot  )
 	then
 		currentGame.setAgentEvaluation(false);		
-		if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > 2 * currentGame.getCurrentEHS()){
-			if(currentGame.getCurrentEHS() > 0.90){
+		
+		if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > 2 * currentGame.getCurrentEHS()){ // If player bets a lot
+			if(currentGame.getCurrentEHS() > 0.90){ // very strong hand, call
 				currentGame.agentCall(currentGame.getCurrentBet());
 			}
-			else{
+			else{ // not strong enough, fold
 				currentGame.agentFold();
 			}
 		}
-		else if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > currentGame.getCurrentEHS()){
-			if(currentGame.getCurrentEHS() > 0.90){
+		else if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > currentGame.getCurrentEHS()){ // If player bets a good bit
+			if(currentGame.getCurrentEHS() > 0.90){ // very strong hand, reraise
 				currentGame.agentBet(currentGame.getCurrentBet(), currentGame.getCurrentBet());
 			}
-			else{
+			else{ // not strong enough, fold
 				currentGame.agentFold();
 			}
 		}
-		else{
-			if(currentGame.getCurrentBet() > currentGame.getBigBlind()){
+		else{  // If player has not bet a lot
+			if(currentGame.getCurrentBet() > currentGame.getBigBlind()){ // reraise if player has bet
 				currentGame.agentBet(currentGame.getCurrentBet(), currentGame.getCurrentBet());
 			}
-			else{
+			else{ // bet if player has not
 				currentGame.agentBet(currentGame.getBigBlind(), currentGame.getCurrentBet());
 			}
 		}
 		update( currentGame );
 end
 
-rule "Agent Evaluation - Flop - HS <= .50"
+rule "Agent Evaluation - Flop - HS <= .50" // eval for agent with weak hand on flop
 	when 
 		currentGame : Game( agentEvaluation && gameState == Game.FLOP && currentEHS <= (.50), currentAgentEvaluation : agentEvaluation, ruleHS : currentHS, rulePPot: currentPPot  )
 	then
-		if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > currentGame.getCurrentHS()){
+		if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > currentGame.getCurrentHS()){ // if player has bet more than profitable, fold
 			currentGame.agentFold();
 		}
-		else{
+		else{ // Else call or check
 			currentGame.agentCall(currentGame.getCurrentBet());
 		}
+		
 		currentGame.setAgentEvaluation(false);
+		
 		update( currentGame );
 end
 
-rule "Agent Evaluation - Turn - HS > .50"
+rule "Agent Evaluation - Turn - HS > .50" // eval for agent with strong hand on turn
 	when 
 		currentGame : Game( agentEvaluation && gameState == Game.TURN && currentEHS > (.50), currentAgentEvaluation : agentEvaluation, ruleHS : currentHS, rulePPot: currentPPot  )
 	then
 		currentGame.setAgentEvaluation(false);		
-		if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > 2 * currentGame.getCurrentEHS()){
-			if(currentGame.getCurrentEHS() > 0.90){
+		
+		if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > 2 * currentGame.getCurrentEHS()){ // If player bets a lot
+			if(currentGame.getCurrentEHS() > 0.90){ // very strong hand, call
 				currentGame.agentCall(currentGame.getCurrentBet());
 			}
-			else{
+			else{ // not strong enough, fold
 				currentGame.agentFold();
 			}
 		}
-		else if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > currentGame.getCurrentEHS()){
-			if(currentGame.getCurrentEHS() > 0.90){
+		else if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > currentGame.getCurrentEHS()){ // If player bets a good bit
+			if(currentGame.getCurrentEHS() > 0.90){ // very strong hand, reraise
 				currentGame.agentBet(currentGame.getCurrentBet(), currentGame.getCurrentBet());
 			}
-			else{
+			else{ // not strong enough, fold
 				currentGame.agentFold();
 			}
 		}
-		else{
-			if(currentGame.getCurrentBet() > currentGame.getBigBlind()){
+		else{  // If player has not bet a lot
+			if(currentGame.getCurrentBet() > currentGame.getBigBlind()){ // reraise if player has bet
 				currentGame.agentBet(currentGame.getCurrentBet(), currentGame.getCurrentBet());
 			}
-			else{
+			else{ // bet if player has not
 				currentGame.agentBet(currentGame.getBigBlind(), currentGame.getCurrentBet());
 			}
 		}
 		update( currentGame );
 end
 
-rule "Agent Evaluation - Turn - HS <= .50"
+rule "Agent Evaluation - Turn - HS <= .50" // eval for agent with weak hand on turn
 	when 
 		currentGame : Game( agentEvaluation && gameState == Game.TURN && currentEHS <= (.50), currentAgentEvaluation : agentEvaluation, ruleHS : currentHS, rulePPot: currentPPot  )
 	then
-		if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > currentGame.getCurrentHS()){
+		if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > currentGame.getCurrentHS()){ // if player has bet more than profitable, fold
 			currentGame.agentFold();
 		}
-		else{
+		else{ // Else call or check
 			currentGame.agentCall(currentGame.getCurrentBet());
 		}
+		
 		currentGame.setAgentEvaluation(false);
+		
 		update( currentGame );
 end
 
-rule "Agent Evaluation - River - HS > .50"
+rule "Agent Evaluation - River - HS > .50" // eval for agent with strong hand on river
 	when 
 		currentGame : Game( agentEvaluation && gameState == Game.RIVER && currentEHS > (.50), currentAgentEvaluation : agentEvaluation, ruleHS : currentHS, rulePPot: currentPPot  )
 	then
 		currentGame.setAgentEvaluation(false);		
-		if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > 2 * currentGame.getCurrentEHS()){
-			if(currentGame.getCurrentEHS() > 0.90){
+		
+		if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > 2 * currentGame.getCurrentEHS()){ // If player bets a lot
+			if(currentGame.getCurrentEHS() > 0.90){ // very strong hand, call
 				currentGame.agentCall(currentGame.getCurrentBet());
 			}
-			else{
+			else{ // not strong enough, fold
 				currentGame.agentFold();
 			}
 		}
-		else if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > currentGame.getCurrentEHS()){
-			if(currentGame.getCurrentEHS() > 0.90){
+		else if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > currentGame.getCurrentEHS()){ // If player bets a good bit
+			if(currentGame.getCurrentEHS() > 0.90){ // very strong hand, reraise
 				currentGame.agentBet(currentGame.getCurrentBet(), currentGame.getCurrentBet());
 			}
-			else{
+			else{ // not strong enough, fold
 				currentGame.agentFold();
 			}
 		}
-		else{
-			if(currentGame.getCurrentBet() > currentGame.getBigBlind()){
+		else{  // If player has not bet a lot
+			if(currentGame.getCurrentBet() > currentGame.getBigBlind()){ // reraise if player has bet
 				currentGame.agentBet(currentGame.getCurrentBet(), currentGame.getCurrentBet());
 			}
-			else{
+			else{ // bet if player has not
 				currentGame.agentBet(currentGame.getBigBlind(), currentGame.getCurrentBet());
 			}
 		}
 		update( currentGame );
 end
 
-rule "Agent Evaluation - River - HS <= .50"
+rule "Agent Evaluation - River - HS <= .50" // eval for agent with weak hand on river
 	when 
 		currentGame : Game( agentEvaluation && gameState == Game.RIVER && currentEHS <= (.50), currentAgentEvaluation : agentEvaluation, ruleHS : currentHS, rulePPot: currentPPot  )
 	then
-		if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > currentGame.getCurrentHS()){
+		if(((double)currentGame.getCurrentBet() / (double)currentGame.getPot()) > currentGame.getCurrentHS()){ // if player has bet more than profitable, fold
 			currentGame.agentFold();
 		}
-		else{
+		else{ // Else call or check
 			currentGame.agentCall(currentGame.getCurrentBet());
 		}
+		
 		currentGame.setAgentEvaluation(false);
+		
 		update( currentGame );
 end
 
-rule "Game Over"
+rule "Game Over" // When game is over, print game over message and exit
 	when 
 		currentGame : Game(gameState == Game.END, currentGameState : gameState )
 	then
